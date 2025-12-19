@@ -100,6 +100,29 @@ namespace Project.Services.Implementation
             return ResponseDto<CategoryDto>.SuccessResponse(category, "Category retrieved successfully.");
         }
 
+        public async Task<ResponseDto<CategoryDto>> GetCategoryByName(string name)
+        {
+            var category = await _context.Categories
+                .Where(c => c.Name.ToLower() == name.ToLower())
+                .Select(c => new CategoryDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Drinks = c.Drinks,
+                    CreatedAt = c.CreatedAt,
+                    CreatedBy = c.CreatedBy,
+                    UpdatedAt = c.UpdatedAt,
+                    UpdatedBy = c.UpdatedBy
+                })
+                .FirstOrDefaultAsync();
+            if (category == null)
+            {
+                return ResponseDto<CategoryDto>.Failure("Category not found.");
+            }
+            return ResponseDto<CategoryDto>.SuccessResponse(category, "Category retrieved successfully.");
+
+        }
+
         public async Task<ResponseDto<bool>> UpdateCategory(int categoryId, CreateCategoryDto updateCategoryDto)
         {
             var category = await _context.Categories.FindAsync(categoryId);

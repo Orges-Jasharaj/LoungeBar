@@ -7,6 +7,7 @@ namespace Project.Services.Interface
     {
         Task<ResponseDto<bool>> CreateCategory(CreateCategoryDto createCategoryDto);
         Task<ResponseDto<List<CategoryDto>>> GetAllCategories();
+        Task<ResponseDto<CategoryDto>> GetCategoryByName(string name);
         Task<ResponseDto<CategoryDto>> GetCategoryById(int categoryId);
         Task<ResponseDto<bool>> UpdateCategory(int categoryId, CreateCategoryDto updateCategoryDto);
         Task<ResponseDto<bool>> DeleteCategory(int categoryId);

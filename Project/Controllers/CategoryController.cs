@@ -46,11 +46,19 @@ namespace Project.Controllers
             return Ok(await _categoryService.GetCategoryById(categoryId));
         }
 
+        [HttpGet("name/{categoryName}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User}")]
+        public async Task<IActionResult> GetCategoryByName(string categoryName)
+        {
+            return Ok(await _categoryService.GetCategoryByName(categoryName));
+        }
+
         [HttpPut("update/{categoryId}")]
         [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin}")]
         public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] CreateCategoryDto updateCategoryDto)
         {
             return Ok(await _categoryService.UpdateCategory(categoryId, updateCategoryDto));
         }
+
     }
 }

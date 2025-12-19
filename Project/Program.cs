@@ -106,6 +106,7 @@ namespace Project
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<CurrentUserService>();
             builder.Services.AddScoped<ICategory, CategoryService>();
+            builder.Services.AddScoped<IDrink, DrinkService>();
 
             builder.Services.AddHttpContextAccessor();
 
