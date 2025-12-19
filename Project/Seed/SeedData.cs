@@ -23,7 +23,7 @@ namespace Project.Seed
                 }
             }
 
-            string superAdminEmail = "superadmin@ecommerce.com";
+            string superAdminEmail = "superadmin@loungebar.com";
             string superAdminPassword = "SuperAdmin123!";
 
             var superAdmin = await userManager.FindByEmailAsync(superAdminEmail);
