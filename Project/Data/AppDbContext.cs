@@ -11,8 +11,8 @@ namespace Project.Data
         {
         }
 
-
-
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Drink> Drinks { get; set; }
 
     }
 }
