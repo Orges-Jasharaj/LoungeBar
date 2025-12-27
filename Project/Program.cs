@@ -107,6 +107,8 @@ namespace Project
             builder.Services.AddScoped<CurrentUserService>();
             builder.Services.AddScoped<ICategory, CategoryService>();
             builder.Services.AddScoped<IDrink, DrinkService>();
+            builder.Services.AddScoped<IOrder, OrderService>();
+            builder.Services.AddScoped<ITable, TableService>();
 
             builder.Services.AddHttpContextAccessor();
 
