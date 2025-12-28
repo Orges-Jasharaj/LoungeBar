@@ -143,7 +143,6 @@ namespace Project.Services.Implementation
 
             order.Status = parsedStatus;
             
-            // Nëse porosia bëhet "Paid" ose "Canceled", automatikisht fshihet nga klientët
             if (parsedStatus == Project.Data.Enums.OrderStatus.Paid || 
                 parsedStatus == Project.Data.Enums.OrderStatus.Canceled)
             {
@@ -175,7 +174,6 @@ namespace Project.Services.Implementation
                 return ResponseDto<bool>.Failure("Order not found.");
             }
 
-            // Verifikoj që përdoruesi është pronari i porosisë ose admin
             if (order.UserId != userId)
             {
                 return ResponseDto<bool>.Failure("You can only hide your own orders.");
