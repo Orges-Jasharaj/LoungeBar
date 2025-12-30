@@ -18,6 +18,7 @@ namespace Project.Data
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Shift> Shifts { get; set; }
 
     }
 }
