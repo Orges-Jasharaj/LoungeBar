@@ -18,11 +18,11 @@ namespace Project.Data.Models
         [Required]
         public ShiftType ShiftType { get; set; }
 
-        [Required]
-        public DateTime StartTime { get; set; }
-
+        public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public bool IsActive { get; set; } = true;
         public string? Notes { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

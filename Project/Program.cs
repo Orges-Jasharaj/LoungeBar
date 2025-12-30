@@ -111,6 +111,7 @@ namespace Project
             builder.Services.AddScoped<ITable, TableService>();
             builder.Services.AddScoped<IReservation, ReservationService>();
             builder.Services.AddScoped<IPayment, PaymentService>();
+            builder.Services.AddScoped<IShift, ShiftService>();
 
             builder.Services.AddHttpContextAccessor();
 
