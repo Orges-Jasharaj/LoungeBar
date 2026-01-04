@@ -123,6 +123,18 @@ namespace Project
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
+            // Add CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowReactApp", policy =>
+                {
+                    policy.WithOrigins("http://localhost:3000")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+            });
+
             var app = builder.Build();
 
             SeedData.InitializeAsync(app.Services).GetAwaiter().GetResult();
@@ -138,7 +150,14 @@ namespace Project
                 });
             }
 
-            app.UseHttpsRedirection();
+            // CORS duhet të jetë para HTTPS redirection për të shmangur probleme me preflight requests
+            app.UseCors("AllowReactApp");
+
+            // Në development, mos bëj HTTPS redirection për të shmangur probleme me CORS preflight
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
 
             app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseAuthentication();

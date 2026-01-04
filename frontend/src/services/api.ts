@@ -1,0 +1,95 @@
+import axios from 'axios';
+import type { LoginDto, CreateUserDto, LoginResponseDto } from '../types/auth';
+import type { TableDto } from '../types/table';
+import type { CreateOrderRequestDto, OrderResponseDto } from '../types/order';
+import type { DrinkDto } from '../types/drink';
+import type { ResponseDto } from '../types/response';
+
+const API_BASE_URL = 'http://localhost:5067/api';
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Interceptor për të shtuar token në çdo request
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Interceptor për të trajtuar gabimet
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token i skaduar ose i pavlefshëm
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export const authApi = {
+  login: async (loginData: LoginDto): Promise<LoginResponseDto> => {
+    const response = await api.post<LoginResponseDto>('/auth/login', loginData);
+    return response.data;
+  },
+
+  register: async (registerData: CreateUserDto): Promise<any> => {
+    const response = await api.post('/auth/register', registerData);
+    return response.data;
+  },
+};
+
+export const tableApi = {
+  getAllTables: async (): Promise<ResponseDto<TableDto[]>> => {
+    const response = await api.get<ResponseDto<TableDto[]>>('/table');
+    return response.data;
+  },
+
+  getTableById: async (tableId: number): Promise<ResponseDto<TableDto>> => {
+    const response = await api.get<ResponseDto<TableDto>>(`/table/${tableId}`);
+    return response.data;
+  },
+};
+
+export const orderApi = {
+  createOrder: async (createOrderDto: CreateOrderRequestDto): Promise<ResponseDto<boolean>> => {
+    const response = await api.post<ResponseDto<boolean>>('/order', createOrderDto);
+    return response.data;
+  },
+
+  getAllOrders: async (): Promise<ResponseDto<OrderResponseDto[]>> => {
+    const response = await api.get<ResponseDto<OrderResponseDto[]>>('/order/GetAllOrders');
+    return response.data;
+  },
+
+  updateOrderStatus: async (orderId: number, status: string): Promise<ResponseDto<boolean>> => {
+    const response = await api.put<ResponseDto<boolean>>(`/order/${orderId}/status?status=${status}`);
+    return response.data;
+  },
+};
+
+export const drinkApi = {
+  getAllDrinks: async (): Promise<ResponseDto<DrinkDto[]>> => {
+    const response = await api.get<ResponseDto<DrinkDto[]>>('/drink');
+    return response.data;
+  },
+};
+
+export default api;
+

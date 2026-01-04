@@ -36,6 +36,7 @@ namespace Project.Controllers
 
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             var result = await _userService.LoginAsync(loginDto);
