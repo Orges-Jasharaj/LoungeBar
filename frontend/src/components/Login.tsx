@@ -20,7 +20,25 @@ const Login: React.FC = () => {
 
     try {
       await login({ email, password });
-      navigate('/dashboard');
+      // Kontrollo rolin dhe redirecto në dashboard-in e duhur
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        // Nëse ka rol Employee, shko te waiter dashboard
+        // Kontrollo edhe për variacione të mundshme të emrit të rolit
+        const hasEmployeeRole = user.roles && Array.isArray(user.roles) && (
+          user.roles.includes('Employee') || 
+          user.roles.includes('EMPLOYEE') || 
+          user.roles.some((role: string) => role && role.toLowerCase() === 'employee')
+        );
+        if (hasEmployeeRole) {
+          navigate('/waiter', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
     } catch (err: any) {
       setError(err.message || 'Email ose fjalëkalimi i gabuar');
     } finally {

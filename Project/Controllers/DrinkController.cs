@@ -19,14 +19,14 @@ namespace Project.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User},{RoleTypes.Employee}")]
         public async Task<IActionResult> GetAllDrinks()
         {
             return Ok(await _drinkService.GetAllDrinks());
         }
 
         [HttpGet("{drinkId}")]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User},{RoleTypes.Employee}")]
         public async Task<IActionResult> GetDrinkById(int drinkId)
         {
             return Ok(await _drinkService.GetDrinkById(drinkId));

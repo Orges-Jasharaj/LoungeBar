@@ -26,7 +26,7 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
       setLoading(true);
       setError('');
       const response = await orderApi.getAllOrders();
-      if (response.isSuccess && response.data) {
+      if (response.success && response.data) {
         // Filtro porositë për këtë tavolinë
         const tableOrders = response.data.filter(
           (order) => order.tableNumber === table.number
@@ -55,7 +55,7 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
   const handleUpdateStatus = async (orderId: number, status: OrderStatus) => {
     try {
       const response = await orderApi.updateOrderStatus(orderId, status);
-      if (response.isSuccess) {
+      if (response.success) {
         await loadOrders();
       } else {
         setError(response.message || 'Dështoi përditësimi i statusit');

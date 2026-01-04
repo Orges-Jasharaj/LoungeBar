@@ -1,6 +1,10 @@
 export interface ResponseDto<T> {
-  isSuccess: boolean;
-  message: string;
-  data: T;
+  success: boolean;
+  message?: string;
+  data?: T;
+  errors?: Array<{
+    errorCode?: string;
+    errorMessage?: string;
+  }>;
 }
 

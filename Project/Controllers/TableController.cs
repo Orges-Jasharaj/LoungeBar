@@ -25,21 +25,21 @@ namespace Project.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User},{RoleTypes.Employee}")]
         public async Task<IActionResult> GetAllTables()
         {
             return Ok(await _tableService.GetAllTables());
         }
 
         [HttpGet("{tableId}")]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User},{RoleTypes.Employee}")]
         public async Task<IActionResult> GetTableById(int tableId)
         {
             return Ok(await _tableService.GetTableById(tableId));
         }
 
         [HttpGet("number/{tableNumber}")]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User},{RoleTypes.Employee}")]
         public async Task<IActionResult> GetTableByNumber(int tableNumber)
         {
             return Ok(await _tableService.GetTableByNumber(tableNumber));

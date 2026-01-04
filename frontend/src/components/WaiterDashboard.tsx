@@ -21,7 +21,7 @@ const WaiterDashboard: React.FC = () => {
       setLoading(true);
       setError('');
       const response = await tableApi.getAllTables();
-      if (response.isSuccess && response.data) {
+      if (response.success && response.data) {
         setTables(response.data);
       } else {
         setError(response.message || 'Dështoi ngarkimi i tavolinave');

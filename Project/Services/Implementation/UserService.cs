@@ -370,7 +370,7 @@ namespace Project.Services.Implementation
         {
             try
             {
-                var allowedRoles = new[] { RoleTypes.SuperAdmin, RoleTypes.Admin };
+                var allowedRoles = new[] { RoleTypes.SuperAdmin, RoleTypes.Admin , RoleTypes.Employee };
 
                 if (!allowedRoles.Contains(role))
                 {

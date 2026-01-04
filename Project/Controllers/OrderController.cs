@@ -26,21 +26,21 @@ namespace Project.Controllers
         }
 
         [HttpGet("GetAllOrders")]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.Employee}")]
         public async Task<IActionResult> GetAllOrders()
         {
             return Ok(await _orderService.GetAllOrders());
         }
 
         [HttpGet("{orderId}")]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.Employee}")]
         public async Task<IActionResult> GetOrderById(int orderId)
         {
             return Ok(await _orderService.GetOrderById(orderId));
         }
 
         [HttpPost]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User},{RoleTypes.Employee}")]
         public async Task<IActionResult> CreateOrder(
             [FromBody] CreateOrderRequestDto createOrderDto)
         {
@@ -48,7 +48,7 @@ namespace Project.Controllers
         }
 
         [HttpPut("{orderId}/status")]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User},{RoleTypes.Employee}")]
         public async Task<IActionResult> UpdateOrderStatus(
             int orderId,
             [FromQuery] string status)
@@ -57,14 +57,14 @@ namespace Project.Controllers
         }
 
         [HttpPut("{orderId}/hide")]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User},{RoleTypes.Employee}")]
         public async Task<IActionResult> HideOrderFromCustomers(int orderId)
         {
             return Ok(await _orderService.HideOrderFromCustomers(orderId));
         }
 
         [HttpDelete("{orderId}")]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User},{RoleTypes.Employee}")]
         public async Task<IActionResult> DeleteOrder(int orderId)
         {
             return Ok(await _orderService.DeleteOrder(orderId));

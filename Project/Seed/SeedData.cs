@@ -13,7 +13,7 @@ namespace Project.Seed
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            string[] roles = new[] { RoleTypes.SuperAdmin, RoleTypes.Admin, RoleTypes.User };
+            string[] roles = new[] { RoleTypes.SuperAdmin, RoleTypes.Admin, RoleTypes.User , RoleTypes.Employee };
 
             foreach (var role in roles)
             {

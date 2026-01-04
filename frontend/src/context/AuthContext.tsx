@@ -44,10 +44,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
       
+      // Sigurohu që roles është një array
+      const roles = Array.isArray(response.roles) ? response.roles : [];
+      
       const userData: User = {
         displayName: response.displayName,
         email: response.email,
-        roles: response.roles,
+        roles: roles,
       };
       
       localStorage.setItem('user', JSON.stringify(userData));

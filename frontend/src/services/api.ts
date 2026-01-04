@@ -45,8 +45,12 @@ api.interceptors.response.use(
 
 export const authApi = {
   login: async (loginData: LoginDto): Promise<LoginResponseDto> => {
-    const response = await api.post<LoginResponseDto>('/auth/login', loginData);
-    return response.data;
+    const response = await api.post<ResponseDto<LoginResponseDto>>('/auth/login', loginData);
+    // Response-i është ResponseDto<LoginResponseDto>, prandaj duhet të marrim response.data.data
+    if (response.data.success && response.data.data) {
+      return response.data.data;
+    }
+    throw new Error(response.data.message || 'Login failed');
   },
 
   register: async (registerData: CreateUserDto): Promise<any> => {

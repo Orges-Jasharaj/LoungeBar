@@ -29,7 +29,7 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
     try {
       setLoading(true);
       const response = await drinkApi.getAllDrinks();
-      if (response.isSuccess && response.data) {
+      if (response.success && response.data) {
         setDrinks(response.data.filter((drink) => drink.isAvailable));
       }
     } catch (err: any) {
@@ -89,7 +89,7 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
         items: orderItems,
       });
 
-      if (response.isSuccess) {
+      if (response.success) {
         onOrderCreated();
       } else {
         setError(response.message || 'Dështoi krijimi i porosisë');
