@@ -75,6 +75,13 @@ namespace Project.Controllers
             return Ok(await _userService.ReactivateUserAsync(id));
         }
 
+        [HttpPut("{id}/role")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin}")]
+        public async Task<IActionResult> UpdateUserRole(string id, [FromQuery] string role)
+        {
+            var result = await _userService.UpdateUserRoleAsync(id, role);
+            return Ok(result);
+        }
 
     }
 }

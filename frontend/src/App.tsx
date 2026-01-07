@@ -5,6 +5,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import WaiterDashboard from './components/WaiterDashboard';
+import SuperAdminDashboard from './components/SuperAdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -19,13 +20,22 @@ const HomeRedirect: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  // Nëse user-i ka rol Employee, shko te waiter dashboard
-  // Kontrollo edhe për variacione të mundshme të emrit të rolit
+  // Kontrollo role-t
+  const hasSuperAdminRole = user.roles && Array.isArray(user.roles) && (
+    user.roles.includes('SuperAdmin') || 
+    user.roles.includes('SUPERADMIN') || 
+    user.roles.some((role: string) => role && role.toLowerCase() === 'superadmin')
+  );
+
   const hasEmployeeRole = user.roles && Array.isArray(user.roles) && (
     user.roles.includes('Employee') || 
     user.roles.includes('EMPLOYEE') || 
     user.roles.some((role: string) => role && role.toLowerCase() === 'employee')
   );
+
+  if (hasSuperAdminRole) {
+    return <Navigate to="/superadmin" replace />;
+  }
 
   if (hasEmployeeRole) {
     return <Navigate to="/waiter" replace />;
@@ -54,6 +64,14 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <WaiterDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/superadmin"
+            element={
+              <ProtectedRoute>
+                <SuperAdminDashboard />
               </ProtectedRoute>
             }
           />

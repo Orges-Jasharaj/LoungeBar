@@ -164,6 +164,55 @@ namespace Project.Services.Implementation
             return ResponseDto<bool>.Failure("User reactivation failed.", errors);
         }
 
+        public async Task<ResponseDto<bool>> UpdateUserRoleAsync(string userId, string newRole)
+        {
+            try
+            {
+                var allowedRoles = new[] { RoleTypes.SuperAdmin, RoleTypes.Admin, RoleTypes.Employee, RoleTypes.User };
+
+                if (!allowedRoles.Contains(newRole))
+                {
+                    return ResponseDto<bool>.Failure($"Invalid role: {newRole}. Allowed roles are: {string.Join(", ", allowedRoles)}");
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return ResponseDto<bool>.Failure("User not found.");
+                }
+
+                // Merr role-t aktuale
+                var currentRoles = await _userManager.GetRolesAsync(user);
+
+                // Hiq të gjitha role-t aktuale
+                if (currentRoles.Any())
+                {
+                    await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                }
+
+                // Shto role-n e re
+                var result = await _userManager.AddToRoleAsync(user, newRole);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation($"User {user.Email} role updated to {newRole}");
+                    return ResponseDto<bool>.SuccessResponse(true, $"User role updated to {newRole} successfully.");
+                }
+
+                var errors = result.Errors.Select(e => new ApiError
+                {
+                    ErrorCode = e.Code,
+                    ErrorMessage = e.Description
+                }).ToList();
+
+                return ResponseDto<bool>.Failure("Role update failed.", errors);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating user role for user {UserId}", userId);
+                return ResponseDto<bool>.Failure("An error occurred while updating user role");
+            }
+        }
 
         public async Task<ResponseDto<List<UserDto>>> GetAllUsersAsync(ClaimsPrincipal currentUser)
         {
@@ -176,19 +225,25 @@ namespace Project.Services.Implementation
                     query = query.IgnoreQueryFilters();
                 }
 
-                var users = await query
-                    .Select(u => new UserDto
-                    {
-                        Id = u.Id,
-                        FirstName = u.FirstName,
-                        LastName = u.LastName,
-                        Email = u.Email,
-                        DateOfBirth = u.DateOfBirth,
-                        isActive = u.isActive
-                    })
-                    .ToListAsync();
+                var usersList = await query.ToListAsync();
+                var usersDto = new List<UserDto>();
 
-                return ResponseDto<List<UserDto>>.SuccessResponse(users, "Users retrieved successfully");
+                foreach (var user in usersList)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    usersDto.Add(new UserDto
+                    {
+                        Id = user.Id,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Email = user.Email,
+                        DateOfBirth = user.DateOfBirth,
+                        isActive = user.isActive,
+                        Roles = roles.ToList()
+                    });
+                }
+
+                return ResponseDto<List<UserDto>>.SuccessResponse(usersDto, "Users retrieved successfully");
             }
             catch (Exception ex)
             {

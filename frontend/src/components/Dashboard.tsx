@@ -8,15 +8,25 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Nëse user-i ka rol Employee, redirecto automatikisht te waiter dashboard
+    // Redirecto bazuar në role
     if (!user) return;
     
-    // Kontrollo edhe për variacione të mundshme të emrit të rolit
+    const hasSuperAdminRole = user.roles && Array.isArray(user.roles) && (
+      user.roles.includes('SuperAdmin') || 
+      user.roles.includes('SUPERADMIN') || 
+      user.roles.some((role: string) => role && role.toLowerCase() === 'superadmin')
+    );
+
     const hasEmployeeRole = user.roles && Array.isArray(user.roles) && (
       user.roles.includes('Employee') || 
       user.roles.includes('EMPLOYEE') || 
       user.roles.some((role: string) => role && role.toLowerCase() === 'employee')
     );
+    
+    if (hasSuperAdminRole) {
+      navigate('/superadmin', { replace: true });
+      return;
+    }
     
     if (hasEmployeeRole) {
       navigate('/waiter', { replace: true });
@@ -28,10 +38,16 @@ const Dashboard: React.FC = () => {
     navigate('/login');
   };
 
-  // Nëse user-i ka rol Employee, mos shfaq këtë dashboard
+  // Nëse user-i ka rol SuperAdmin ose Employee, mos shfaq këtë dashboard
   if (!user) {
     return <div>Duke u ngarkuar...</div>;
   }
+
+  const hasSuperAdminRole = user.roles && Array.isArray(user.roles) && (
+    user.roles.includes('SuperAdmin') || 
+    user.roles.includes('SUPERADMIN') || 
+    user.roles.some((role: string) => role && role.toLowerCase() === 'superadmin')
+  );
 
   const hasEmployeeRole = user.roles && Array.isArray(user.roles) && (
     user.roles.includes('Employee') || 
@@ -39,7 +55,7 @@ const Dashboard: React.FC = () => {
     user.roles.some((role: string) => role && role.toLowerCase() === 'employee')
   );
 
-  if (hasEmployeeRole) {
+  if (hasSuperAdminRole || hasEmployeeRole) {
     return <div>Duke u ridrejtuar...</div>; // Loading state derisa të bëhet redirect
   }
 

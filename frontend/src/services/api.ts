@@ -4,6 +4,7 @@ import type { TableDto } from '../types/table';
 import type { CreateOrderRequestDto, OrderResponseDto } from '../types/order';
 import type { DrinkDto } from '../types/drink';
 import type { ResponseDto, PagedResponseDto } from '../types/response';
+import type { UserDto, UpdateUserDto } from '../types/user';
 
 const API_BASE_URL = 'http://localhost:5067/api';
 
@@ -102,6 +103,62 @@ export const orderApi = {
 export const drinkApi = {
   getAllDrinks: async (): Promise<ResponseDto<DrinkDto[]>> => {
     const response = await api.get<ResponseDto<DrinkDto[]>>('/drink');
+    return response.data;
+  },
+};
+
+export const userApi = {
+  getAllUsers: async (): Promise<ResponseDto<UserDto[]>> => {
+    const response = await api.get<ResponseDto<UserDto[]>>('/user/users');
+    return response.data;
+  },
+
+  getUserById: async (userId: string): Promise<ResponseDto<UserDto>> => {
+    const response = await api.get<ResponseDto<UserDto>>(`/user/${userId}`);
+    return response.data;
+  },
+
+  createUserWithRole: async (
+    createUserDto: CreateUserDto,
+    role: string
+  ): Promise<ResponseDto<boolean>> => {
+    const response = await api.post<ResponseDto<boolean>>(
+      `/auth/registerUserWithRole?role=${role}`,
+      createUserDto
+    );
+    return response.data;
+  },
+
+  updateUser: async (
+    userId: string,
+    updateUserDto: UpdateUserDto
+  ): Promise<ResponseDto<boolean>> => {
+    const response = await api.put<ResponseDto<boolean>>(
+      `/user/${userId}`,
+      updateUserDto
+    );
+    return response.data;
+  },
+
+  updateUserRole: async (
+    userId: string,
+    role: string
+  ): Promise<ResponseDto<boolean>> => {
+    const response = await api.put<ResponseDto<boolean>>(
+      `/user/${userId}/role?role=${role}`
+    );
+    return response.data;
+  },
+
+  deleteUser: async (userId: string): Promise<ResponseDto<boolean>> => {
+    const response = await api.delete<ResponseDto<boolean>>(`/user/${userId}`);
+    return response.data;
+  },
+
+  reactivateUser: async (userId: string): Promise<ResponseDto<boolean>> => {
+    const response = await api.put<ResponseDto<boolean>>(
+      `/user/ReactivateUser/${userId}`
+    );
     return response.data;
   },
 };

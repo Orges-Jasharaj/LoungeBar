@@ -134,11 +134,18 @@ namespace Project.Services.Implementation
 
         public async Task<ResponseDto<bool>> UpdateOrderStatus(int orderId, string status)
         {
+            var userId = _currentUserService.GetCurrentUserId();
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (order == null)
             {
                 return ResponseDto<bool>.Failure("Order not found.");
+            }
+
+            // Kontrollojmë nëse porosia i përket kamarierit aktual
+            if (order.UserId != userId)
+            {
+                return ResponseDto<bool>.Failure("You can only update your own orders.");
             }
 
             if (!Enum.TryParse<OrderStatus>(status, true, out var parsedStatus))
@@ -201,6 +208,7 @@ namespace Project.Services.Implementation
 
         public async Task<ResponseDto<bool>> DeleteOrder(int orderId)
         {
+            var userId = _currentUserService.GetCurrentUserId();
             var order = await _context.Orders
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.Id == orderId);
@@ -210,6 +218,12 @@ namespace Project.Services.Implementation
                 return ResponseDto<bool>.Failure("Order not found.");
             }
 
+            // Kontrollojmë nëse porosia i përket kamarierit aktual
+            if (order.UserId != userId)
+            {
+                return ResponseDto<bool>.Failure("You can only delete your own orders.");
+            }
+
             _context.OrderItems.RemoveRange(order.OrderItems);
             _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
@@ -217,7 +231,7 @@ namespace Project.Services.Implementation
             _logger.LogInformation(
                 "Order {OrderId} deleted by {UserId}",
                 orderId,
-                _currentUserService.GetCurrentUserId()
+                userId
             );
 
             return ResponseDto<bool>.SuccessResponse(true, "Order deleted successfully.");
@@ -299,6 +313,8 @@ namespace Project.Services.Implementation
 
         public async Task<ResponseDto<PagedResponseDto<OrderResponseDto>>> GetOrdersByTable(int tableId, int page = 1, int pageSize = 10)
         {
+            var userId = _currentUserService.GetCurrentUserId();
+
             // Validimi i parametrave
             if (page < 1) page = 1;
             if (pageSize < 1 || pageSize > 100) pageSize = 10;
@@ -310,18 +326,18 @@ namespace Project.Services.Implementation
                 return ResponseDto<PagedResponseDto<OrderResponseDto>>.Failure("Table not found.");
             }
 
-            // Numri total i porosive për këtë tavolinë
+            // Numri total i porosive për këtë tavolinë dhe këtë kamarier
             var totalCount = await _context.Orders
-                .Where(o => o.TableId == tableId)
+                .Where(o => o.TableId == tableId && o.UserId == userId)
                 .CountAsync();
 
-            // Porositë me paginim
+            // Porositë me paginim - vetëm për këtë kamarier
             var orders = await _context.Orders
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Drink)
                 .Include(o => o.Table)
                 .Include(o => o.User)
-                .Where(o => o.TableId == tableId)
+                .Where(o => o.TableId == tableId && o.UserId == userId)
                 .OrderByDescending(o => o.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

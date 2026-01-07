@@ -14,6 +14,7 @@ namespace Project.Services.Interface
         Task<ResponseDto<bool>> DeleteUserAsync(string userId);
         Task<ResponseDto<bool>> ReactivateUserAsync(string userId);
         Task<ResponseDto<bool>> UpdateUserAsync(string userId, UpdateUserDto userDto);
+        Task<ResponseDto<bool>> UpdateUserRoleAsync(string userId, string newRole);
         Task<ResponseDto<bool>> ChangeUserPassword(ChangePasswordDto changePasswordDto);
         Task<ResponseDto<LoginResponseDto>> RefreshToken(RefreshTokenRequestDto refreshTokenDto);
     }
