@@ -12,5 +12,8 @@ namespace Project.Services.Interface
         Task<ResponseDto<bool>> UpdateOrderStatus(int orderId, string status);
         Task<ResponseDto<bool>> HideOrderFromCustomers(int orderId);
         Task<ResponseDto<bool>> DeleteOrder(int orderId);
+        Task<ResponseDto<decimal>> GetTotalOrdersByShift(int shiftId);
+        Task<ResponseDto<decimal>> GetTotalOrdersByMyCurrentShift();
+
     }
 }

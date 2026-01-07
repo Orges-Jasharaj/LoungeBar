@@ -11,6 +11,8 @@ namespace Project.Data.Models
         public decimal TotalAmount { get; set; }
         public int TableId { get; set; }
         public Table Table { get; set; }
+        public int? ShiftId { get; set; }
+        public Shift? Shift { get; set; }
         public OrderStatus Status { get; set; } = OrderStatus.Pending;
         public bool IsVisibleToCustomers { get; set; } = true;
         public ICollection<OrderItem> OrderItems { get; set; }

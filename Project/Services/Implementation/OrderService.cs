@@ -41,10 +41,15 @@ namespace Project.Services.Implementation
                 return ResponseDto<bool>.Failure($"Table with number {createOrderDto.TableNumber} not found.");
             }
 
+            // Gjej shift-in aktiv të kamarierit
+            var activeShift = await _context.Shifts
+                .FirstOrDefaultAsync(s => s.UserId == userId && s.EndTime == null);
+
             var order = new Order
             {
                 UserId = userId,
                 TableId = table.Id,
+                ShiftId = activeShift?.Id,
                 CreatedBy = userId ?? "System",
                 CreatedAt = DateTime.UtcNow,
                 Status = OrderStatus.Pending,
@@ -222,12 +227,15 @@ namespace Project.Services.Implementation
         public async Task<ResponseDto<List<OrderResponseDto>>> GetAllOrders()
         {
             var orders = await _context.Orders
-                .Include(o => o.User)
-                .Include(o => o.Table)
-                .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Drink)
-                .OrderByDescending(o => o.CreatedAt)
-                .ToListAsync();
+    .Include(o => o.User)
+    .Include(o => o.Table)
+    .Include(o => o.OrderItems)
+        .ThenInclude(oi => oi.Drink)
+    .OrderByDescending(o => o.CreatedAt)
+    .Skip(0)
+    .Take(10)
+    .ToListAsync();
+
 
             var result = orders.Select(MapToOrderResponse).ToList();
 
@@ -240,6 +248,54 @@ namespace Project.Services.Implementation
                 .SuccessResponse(result, "All orders retrieved successfully.");
         }
 
+
+        public async Task<ResponseDto<decimal>> GetTotalOrdersByShift(int shiftId)
+        {
+            var shift = await _context.Shifts.FindAsync(shiftId);
+            
+            if (shift == null)
+            {
+                return ResponseDto<decimal>.Failure("Shift not found.");
+            }
+
+            var total = await _context.Orders
+                .Where(o => o.ShiftId == shiftId)
+                .SumAsync(o => o.TotalAmount);
+
+            _logger.LogInformation(
+                "Total orders for shift {ShiftId} retrieved: {Total}",
+                shiftId,
+                total
+            );
+
+            return ResponseDto<decimal>.SuccessResponse(total, "Total orders for shift retrieved successfully.");
+        }
+
+        public async Task<ResponseDto<decimal>> GetTotalOrdersByMyCurrentShift()
+        {
+            var userId = _currentUserService.GetCurrentUserId();
+
+            var activeShift = await _context.Shifts
+                .FirstOrDefaultAsync(s => s.UserId == userId && s.EndTime == null);
+
+            if (activeShift == null)
+            {
+                return ResponseDto<decimal>.Failure("No active shift found for the current user.");
+            }
+
+            var total = await _context.Orders
+                .Where(o => o.ShiftId == activeShift.Id)
+                .SumAsync(o => o.TotalAmount);
+
+            _logger.LogInformation(
+                "Total orders for current shift {ShiftId} of user {UserId} retrieved: {Total}",
+                activeShift.Id,
+                userId,
+                total
+            );
+
+            return ResponseDto<decimal>.SuccessResponse(total, "Total orders for current shift retrieved successfully.");
+        }
 
         private static OrderResponseDto MapToOrderResponse(Order order)
         {

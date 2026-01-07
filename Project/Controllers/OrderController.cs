@@ -40,7 +40,7 @@ namespace Project.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User},{RoleTypes.Employee}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.Employee}")]
         public async Task<IActionResult> CreateOrder(
             [FromBody] CreateOrderRequestDto createOrderDto)
         {
@@ -48,7 +48,7 @@ namespace Project.Controllers
         }
 
         [HttpPut("{orderId}/status")]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User},{RoleTypes.Employee}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.Employee}")]
         public async Task<IActionResult> UpdateOrderStatus(
             int orderId,
             [FromQuery] string status)
@@ -68,6 +68,20 @@ namespace Project.Controllers
         public async Task<IActionResult> DeleteOrder(int orderId)
         {
             return Ok(await _orderService.DeleteOrder(orderId));
+        }
+
+        [HttpGet("shift/{shiftId}/total")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.Employee}")]
+        public async Task<IActionResult> GetTotalOrdersByShift(int shiftId)
+        {
+            return Ok(await _orderService.GetTotalOrdersByShift(shiftId));
+        }
+
+        [HttpGet("myshift/total")]
+        [Authorize]
+        public async Task<IActionResult> GetTotalOrdersByMyCurrentShift()
+        {
+            return Ok(await _orderService.GetTotalOrdersByMyCurrentShift());
         }
     }
 }
