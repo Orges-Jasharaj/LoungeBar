@@ -14,6 +14,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   onClose,
   onUserUpdated,
 }) => {
+  const maxDate = new Date().toISOString().split('T')[0];
   const [formData, setFormData] = useState<UpdateUserDto>({
     firstName: user.firstName,
     lastName: user.lastName,
@@ -30,6 +31,26 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     });
   }, [user]);
 
+  const validateForm = (): string | null => {
+    const firstNameTrimmed = (formData.firstName || '').trim();
+    const lastNameTrimmed = (formData.lastName || '').trim();
+    const dob = formData.dateOfBirth || '';
+
+    if (firstNameTrimmed.length < 2) {
+      return 'First name must be at least 2 characters.';
+    }
+    if (lastNameTrimmed.length < 2) {
+      return 'Last name must be at least 2 characters.';
+    }
+    if (!dob) {
+      return 'Date of birth is required.';
+    }
+    if (dob > maxDate) {
+      return 'Date of birth cannot be in the future.';
+    }
+    return null;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -38,6 +59,13 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -61,12 +89,23 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     }
   };
 
+  const handleOverlayClick = () => {
+    if (loading) return;
+    onClose();
+  };
+
+  const handleCloseClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (loading) return;
+    onClose();
+  };
+
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Edit User</h2>
-          <button className="close-btn" onClick={onClose}>
+          <button className="close-btn" onClick={handleCloseClick} disabled={loading}>
             ×
           </button>
         </div>
@@ -106,6 +145,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               name="dateOfBirth"
               value={formData.dateOfBirth}
               onChange={handleChange}
+              max={maxDate}
               required
             />
           </div>

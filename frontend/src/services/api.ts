@@ -5,6 +5,9 @@ import type { CreateOrderRequestDto, OrderResponseDto } from '../types/order';
 import type { DrinkDto } from '../types/drink';
 import type { ResponseDto, PagedResponseDto } from '../types/response';
 import type { UserDto, UpdateUserDto } from '../types/user';
+import type { ShiftDto } from '../types/shift';
+import type { PaymentDto } from '../types/payment';
+import type { ReservationDto } from '../types/reservation';
 
 const API_BASE_URL = 'http://localhost:5067/api';
 
@@ -98,11 +101,67 @@ export const orderApi = {
     const response = await api.put<ResponseDto<boolean>>(`/order/${orderId}/status?status=${status}`);
     return response.data;
   },
+
+  getTotalOrdersByShift: async (shiftId: number): Promise<ResponseDto<number>> => {
+    const response = await api.get<ResponseDto<number>>(`/order/shift/${shiftId}/total`);
+    return response.data;
+  },
+
+  getTotalOrdersByMyCurrentShift: async (): Promise<ResponseDto<number>> => {
+    const response = await api.get<ResponseDto<number>>('/order/myshift/total');
+    return response.data;
+  },
 };
 
 export const drinkApi = {
   getAllDrinks: async (): Promise<ResponseDto<DrinkDto[]>> => {
     const response = await api.get<ResponseDto<DrinkDto[]>>('/drink');
+    return response.data;
+  },
+};
+
+export const shiftApi = {
+  getAllShifts: async (): Promise<ResponseDto<ShiftDto[]>> => {
+    const response = await api.get<ResponseDto<ShiftDto[]>>('/shift/all');
+    return response.data;
+  },
+
+  getShiftById: async (shiftId: number): Promise<ResponseDto<ShiftDto>> => {
+    const response = await api.get<ResponseDto<ShiftDto>>(`/shift/${shiftId}`);
+    return response.data;
+  },
+
+  getMyShift: async (): Promise<ResponseDto<ShiftDto>> => {
+    const response = await api.get<ResponseDto<ShiftDto>>('/shift/myshift');
+    return response.data;
+  },
+
+  start: async (): Promise<ResponseDto<ShiftDto>> => {
+    const response = await api.post<ResponseDto<ShiftDto>>('/shift/start', {});
+    return response.data;
+  },
+
+  stop: async (): Promise<ResponseDto<ShiftDto>> => {
+    const response = await api.post<ResponseDto<ShiftDto>>('/shift/stop', {});
+    return response.data;
+  },
+};
+
+export const paymentApi = {
+  getAllPayments: async (): Promise<ResponseDto<PaymentDto[]>> => {
+    const response = await api.get<ResponseDto<PaymentDto[]>>('/payment');
+    return response.data;
+  },
+
+  getPaymentsByOrder: async (orderId: number): Promise<ResponseDto<PaymentDto[]>> => {
+    const response = await api.get<ResponseDto<PaymentDto[]>>(`/payment/order/${orderId}`);
+    return response.data;
+  },
+};
+
+export const reservationApi = {
+  getAllReservations: async (): Promise<ResponseDto<ReservationDto[]>> => {
+    const response = await api.get<ResponseDto<ReservationDto[]>>('/reservation');
     return response.data;
   },
 };
