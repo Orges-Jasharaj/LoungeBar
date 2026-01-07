@@ -297,6 +297,60 @@ namespace Project.Services.Implementation
             return ResponseDto<decimal>.SuccessResponse(total, "Total orders for current shift retrieved successfully.");
         }
 
+        public async Task<ResponseDto<PagedResponseDto<OrderResponseDto>>> GetOrdersByTable(int tableId, int page = 1, int pageSize = 10)
+        {
+            // Validimi i parametrave
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 100) pageSize = 10;
+
+            // Verifikojmë nëse tavolina ekziston
+            var table = await _context.Tables.FindAsync(tableId);
+            if (table == null)
+            {
+                return ResponseDto<PagedResponseDto<OrderResponseDto>>.Failure("Table not found.");
+            }
+
+            // Numri total i porosive për këtë tavolinë
+            var totalCount = await _context.Orders
+                .Where(o => o.TableId == tableId)
+                .CountAsync();
+
+            // Porositë me paginim
+            var orders = await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Drink)
+                .Include(o => o.Table)
+                .Include(o => o.User)
+                .Where(o => o.TableId == tableId)
+                .OrderByDescending(o => o.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var orderDtos = orders.Select(MapToOrderResponse).ToList();
+
+            var pagedResponse = new PagedResponseDto<OrderResponseDto>
+            {
+                Items = orderDtos,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            _logger.LogInformation(
+                "Orders for table {TableId} retrieved. Page: {Page}, PageSize: {PageSize}, Total: {TotalCount}",
+                tableId,
+                page,
+                pageSize,
+                totalCount
+            );
+
+            return ResponseDto<PagedResponseDto<OrderResponseDto>>.SuccessResponse(
+                pagedResponse,
+                "Orders retrieved successfully."
+            );
+        }
+
         private static OrderResponseDto MapToOrderResponse(Order order)
         {
             return new OrderResponseDto

@@ -14,6 +14,7 @@ namespace Project.Services.Interface
         Task<ResponseDto<bool>> DeleteOrder(int orderId);
         Task<ResponseDto<decimal>> GetTotalOrdersByShift(int shiftId);
         Task<ResponseDto<decimal>> GetTotalOrdersByMyCurrentShift();
+        Task<ResponseDto<PagedResponseDto<OrderResponseDto>>> GetOrdersByTable(int tableId, int page = 1, int pageSize = 10);
 
     }
 }

@@ -16,22 +16,24 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     loadOrders();
-  }, [table.id]);
+  }, [table.id, page]);
 
   const loadOrders = async () => {
     try {
       setLoading(true);
       setError('');
-      const response = await orderApi.getAllOrders();
+      const response = await orderApi.getOrdersByTable(table.id, page, pageSize);
       if (response.success && response.data) {
-        // Filtro porositë për këtë tavolinë
-        const tableOrders = response.data.filter(
-          (order) => order.tableNumber === table.number
-        );
-        setOrders(tableOrders);
+        setOrders(response.data.items);
+        setTotalCount(response.data.totalCount);
+        setTotalPages(response.data.totalPages);
       } else {
         setError(response.message || 'Dështoi ngarkimi i porosive');
       }
@@ -48,8 +50,21 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
 
   const handleOrderCreated = () => {
     setShowCreateModal(false);
+    setPage(1); // Reset to first page when new order is created
     loadOrders();
     onOrderUpdated();
+  };
+
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      setPage(page + 1);
+    }
   };
 
   const handleUpdateStatus = async (orderId: number, status: OrderStatus) => {
@@ -125,8 +140,9 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
                 </button>
               </div>
             ) : (
-              <div className="orders-list">
-                {orders.map((order) => (
+              <>
+                <div className="orders-list">
+                  {orders.map((order) => (
                   <div key={order.orderId} className="order-card">
                     <div className="order-header">
                       <div>
@@ -175,8 +191,30 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+                {totalPages > 1 && (
+                  <div className="pagination">
+                    <button
+                      onClick={handlePreviousPage}
+                      disabled={page === 1}
+                      className="pagination-btn"
+                    >
+                      ← Paraardhëse
+                    </button>
+                    <span className="pagination-info">
+                      Faqja {page} nga {totalPages} (Total: {totalCount} porosi)
+                    </span>
+                    <button
+                      onClick={handleNextPage}
+                      disabled={page === totalPages}
+                      className="pagination-btn"
+                    >
+                      Tjetra →
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}

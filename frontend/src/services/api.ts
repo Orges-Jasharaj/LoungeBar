@@ -3,7 +3,7 @@ import type { LoginDto, CreateUserDto, LoginResponseDto } from '../types/auth';
 import type { TableDto } from '../types/table';
 import type { CreateOrderRequestDto, OrderResponseDto } from '../types/order';
 import type { DrinkDto } from '../types/drink';
-import type { ResponseDto } from '../types/response';
+import type { ResponseDto, PagedResponseDto } from '../types/response';
 
 const API_BASE_URL = 'http://localhost:5067/api';
 
@@ -79,6 +79,17 @@ export const orderApi = {
 
   getAllOrders: async (): Promise<ResponseDto<OrderResponseDto[]>> => {
     const response = await api.get<ResponseDto<OrderResponseDto[]>>('/order/GetAllOrders');
+    return response.data;
+  },
+
+  getOrdersByTable: async (
+    tableId: number,
+    page: number = 1,
+    pageSize: number = 10
+  ): Promise<ResponseDto<PagedResponseDto<OrderResponseDto>>> => {
+    const response = await api.get<ResponseDto<PagedResponseDto<OrderResponseDto>>>(
+      `/order/table/${tableId}?page=${page}&pageSize=${pageSize}`
+    );
     return response.data;
   },
 

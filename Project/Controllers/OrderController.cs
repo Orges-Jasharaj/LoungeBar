@@ -32,6 +32,16 @@ namespace Project.Controllers
             return Ok(await _orderService.GetAllOrders());
         }
 
+        [HttpGet("table/{tableId}")]
+        [Authorize]
+        public async Task<IActionResult> GetOrdersByTable(
+            int tableId,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            return Ok(await _orderService.GetOrdersByTable(tableId, page, pageSize));
+        }
+
         [HttpGet("{orderId}")]
         [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.Employee}")]
         public async Task<IActionResult> GetOrderById(int orderId)
