@@ -6,6 +6,7 @@ import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import WaiterDashboard from './components/WaiterDashboard';
 import SuperAdminDashboard from './components/SuperAdminDashboard';
+import AdminDashboard from './components/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -33,12 +34,22 @@ const HomeRedirect: React.FC = () => {
     user.roles.some((role: string) => role && role.toLowerCase() === 'employee')
   );
 
+  const hasManagerRole = user.roles && Array.isArray(user.roles) && (
+    user.roles.includes('Admin') || 
+    user.roles.includes('ADMIN') || 
+    user.roles.some((role: string) => role && role.toLowerCase() === 'admin')
+  );
+
   if (hasSuperAdminRole) {
     return <Navigate to="/superadmin" replace />;
   }
 
   if (hasEmployeeRole) {
     return <Navigate to="/waiter" replace />;
+  }
+
+  if (hasManagerRole) {
+    return <Navigate to="/admin" replace />;
   }
 
   return <Navigate to="/dashboard" replace />;
@@ -72,6 +83,14 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <SuperAdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
               </ProtectedRoute>
             }
           />

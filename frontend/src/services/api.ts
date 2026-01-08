@@ -241,6 +241,21 @@ export const reservationApi = {
     const response = await api.get<ResponseDto<ReservationDto[]>>('/reservation');
     return response.data;
   },
+
+  getReservationById: async (reservationId: number): Promise<ResponseDto<ReservationDto>> => {
+    const response = await api.get<ResponseDto<ReservationDto>>(`/reservation/${reservationId}`);
+    return response.data;
+  },
+
+  updateReservationStatus: async (reservationId: number, status: string): Promise<ResponseDto<boolean>> => {
+    const response = await api.put<ResponseDto<boolean>>(`/reservation/${reservationId}/status?status=${status}`);
+    return response.data;
+  },
+
+  deleteReservation: async (reservationId: number): Promise<ResponseDto<boolean>> => {
+    const response = await api.delete<ResponseDto<boolean>>(`/reservation/${reservationId}`);
+    return response.data;
+  },
 };
 
 export const userApi = {

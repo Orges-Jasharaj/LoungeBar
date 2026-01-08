@@ -18,7 +18,7 @@ namespace Project.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User}")]
+        //[Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.User}")]
         public async Task<IActionResult> CreateReservation([FromBody] CreateReservationDto createReservationDto)
         {
             return Ok(await _reservationService.CreateReservation(createReservationDto));

@@ -3,10 +3,13 @@ export interface ReservationDto {
   tableNumber: number;
   customerName: string;
   customerPhone?: string;
-  date: string;
-  time?: string;
+  customerEmail?: string;
+  reservationDate: string; // Backend sends ReservationDate
+  reservationTime: string; // Backend sends ReservationTime as TimeSpan (e.g., "14:30:00")
+  numberOfGuests: number;
   status: string;
-  createdBy: string;
+  notes?: string;
+  createdBy?: string;
   createdAt: string;
   updatedBy?: string;
   updatedAt?: string;

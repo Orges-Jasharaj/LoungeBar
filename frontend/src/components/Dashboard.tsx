@@ -22,6 +22,12 @@ const Dashboard: React.FC = () => {
       user.roles.includes('EMPLOYEE') || 
       user.roles.some((role: string) => role && role.toLowerCase() === 'employee')
     );
+
+    const hasAdminRole = user.roles && Array.isArray(user.roles) && (
+      user.roles.includes('Admin') || 
+      user.roles.includes('ADMIN') || 
+      user.roles.some((role: string) => role && role.toLowerCase() === 'admin')
+    );
     
     if (hasSuperAdminRole) {
       navigate('/superadmin', { replace: true });
@@ -30,6 +36,12 @@ const Dashboard: React.FC = () => {
     
     if (hasEmployeeRole) {
       navigate('/waiter', { replace: true });
+      return;
+    }
+
+    if (hasAdminRole) {
+      navigate('/admin', { replace: true });
+      return;
     }
   }, [user, navigate]);
 
@@ -55,7 +67,13 @@ const Dashboard: React.FC = () => {
     user.roles.some((role: string) => role && role.toLowerCase() === 'employee')
   );
 
-  if (hasSuperAdminRole || hasEmployeeRole) {
+  const hasAdminRole = user.roles && Array.isArray(user.roles) && (
+    user.roles.includes('Admin') || 
+    user.roles.includes('ADMIN') || 
+    user.roles.some((role: string) => role && role.toLowerCase() === 'admin')
+  );
+
+  if (hasSuperAdminRole || hasEmployeeRole || hasAdminRole) {
     return <div>Duke u ridrejtuar...</div>; // Loading state derisa të bëhet redirect
   }
 
