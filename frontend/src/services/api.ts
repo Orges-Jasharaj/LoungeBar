@@ -252,6 +252,20 @@ export const reservationApi = {
     return response.data;
   },
 
+  updateReservation: async (reservationId: number, updateData: {
+    tableNumber: number;
+    customerName: string;
+    customerPhone: string;
+    customerEmail?: string;
+    reservationDate: string;
+    reservationTime: string;
+    numberOfGuests: number;
+    notes?: string;
+  }): Promise<ResponseDto<boolean>> => {
+    const response = await api.put<ResponseDto<boolean>>(`/reservation/${reservationId}`, updateData);
+    return response.data;
+  },
+
   deleteReservation: async (reservationId: number): Promise<ResponseDto<boolean>> => {
     const response = await api.delete<ResponseDto<boolean>>(`/reservation/${reservationId}`);
     return response.data;

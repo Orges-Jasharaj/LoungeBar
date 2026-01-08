@@ -1,14 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ReservationManagement from './ReservationManagement';
 import './AdminDashboard.css';
+import { statisticsApi } from '../services/api';
+import type { StatisticsOverviewDto, TopDrinkDto } from '../types/statistics';
 
 const AdminDashboard: React.FC = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
     const [activeTab, setActiveTab] = useState<'reservations' | 'statistics'>('reservations');
+    
+    const [loadingStats, setLoadingStats] = useState(false);
+    const [statsError, setStatsError] = useState<string>('');
+    const [statsLoaded, setStatsLoaded] = useState<boolean>(false);
+    const [overview, setOverview] = useState<StatisticsOverviewDto | null>(null);
+    const [topDrinks, setTopDrinks] = useState<TopDrinkDto[]>([]);
+
+    useEffect(() => {
+        const fetchStatistics = async () => {
+            if (statsLoaded) return;
+            setLoadingStats(true);
+            setStatsError('');
+            try {
+                const [overviewRes, topDrinksRes] = await Promise.all([
+                    statisticsApi.getOverview(),
+                    statisticsApi.getTopDrinks(5),
+                ]);
+
+                if (!overviewRes.success || !overviewRes.data) {
+                    throw new Error(overviewRes.message || 'Failed to load statistics overview');
+                }
+                if (!topDrinksRes.success || !topDrinksRes.data) {
+                    throw new Error(topDrinksRes.message || 'Failed to load top drinks');
+                }
+
+                setOverview(overviewRes.data);
+                setTopDrinks(topDrinksRes.data);
+                setStatsLoaded(true);
+            } catch (err: any) {
+                setStatsError(err?.message || 'Error loading statistics');
+            } finally {
+                setLoadingStats(false);
+            }
+        };
+
+        if (activeTab === 'statistics') {
+            void fetchStatistics();
+        }
+    }, [activeTab, statsLoaded]);
 
     const handleLogout = () => {
         logout();
@@ -47,7 +88,95 @@ const AdminDashboard: React.FC = () => {
             
             <div className="tab-content">
               {activeTab === 'reservations' && <ReservationManagement />}
-              {activeTab === 'statistics' && <div>Statistics coming soon...</div>}
+              {activeTab === 'statistics' && (
+                <div className="statistics-section">
+                  <div className="statistics-header">
+                    <div>
+                      <h2>Statistics</h2>
+                      <p className="statistics-subtitle">
+                        Quick overview of system activity (orders, revenue, payments, reservations, shifts).
+                      </p>
+                    </div>
+                  </div>
+
+                  {loadingStats && (
+                    <div className="stats-loading">
+                      <div className="skeleton-line" />
+                      <div className="skeleton-grid">
+                        {Array.from({ length: 8 }).map((_, i) => (
+                          <div key={i} className="skeleton-card" />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {statsError && <div className="error-banner">{statsError}</div>}
+
+                  {!loadingStats && !statsError && overview && (
+                    <>
+                      <div className="statistics-layout">
+                        <div className="stats-cards">
+                          <div className="stat-card">
+                            <div className="stat-title">Total Users</div>
+                            <div className="stat-value">{overview.totalUsers}</div>
+                          </div>
+                          <div className="stat-card">
+                            <div className="stat-title">Total Tables</div>
+                            <div className="stat-value">{overview.totalTables}</div>
+                          </div>
+                          <div className="stat-card">
+                            <div className="stat-title">Total Orders</div>
+                            <div className="stat-value">{overview.totalOrders}</div>
+                          </div>
+                          <div className="stat-card stat-card-accent">
+                            <div className="stat-title">Revenue (Paid)</div>
+                            <div className="stat-value">
+                              € {overview.revenuePaid.toFixed(2)}
+                            </div>
+                          </div>
+                          <div className="stat-card">
+                            <div className="stat-title">Avg Order Value (Paid)</div>
+                            <div className="stat-value">
+                              € {overview.averageOrderValuePaid.toFixed(2)}
+                            </div>
+                          </div>
+                          <div className="stat-card">
+                            <div className="stat-title">Payments</div>
+                            <div className="stat-value">{overview.paymentsCount}</div>
+                          </div>
+                          <div className="stat-card">
+                            <div className="stat-title">Reservations</div>
+                            <div className="stat-value">{overview.reservationsCount}</div>
+                          </div>
+                          <div className="stat-card">
+                            <div className="stat-title">Active Shifts</div>
+                            <div className="stat-value">{overview.activeShifts}</div>
+                          </div>
+                        </div>
+
+                        <div className="panel top-drinks">
+                          <div className="panel-header">
+                            <h3>Top 5 Drinks</h3>
+                            <span className="panel-subtitle">By quantity ordered</span>
+                          </div>
+                          {topDrinks.length === 0 ? (
+                            <p className="muted">No data available.</p>
+                          ) : (
+                            <ol className="top-drinks-list">
+                              {topDrinks.map((d) => (
+                                <li key={d.drinkId} className="top-drink-item">
+                                  <span className="drink-rank" aria-hidden="true" />
+                                  <span className="drink-name">{d.drinkName || `Drink #${d.drinkId}`}</span>
+                                  <span className="drink-qty">x{d.quantity}</span>
+                                </li>
+                              ))}
+                            </ol>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
