@@ -5,7 +5,7 @@ import type { CreateOrderRequestDto, OrderResponseDto } from '../types/order';
 import type { DrinkDto } from '../types/drink';
 import type { ResponseDto, PagedResponseDto } from '../types/response';
 import type { UserDto, UpdateUserDto } from '../types/user';
-import type { ShiftDto } from '../types/shift';
+import type { ShiftDto, CreateShiftDto } from '../types/shift';
 import type { PaymentDto } from '../types/payment';
 import type { ReservationDto } from '../types/reservation';
 
@@ -111,6 +111,38 @@ export const orderApi = {
     const response = await api.get<ResponseDto<number>>('/order/myshift/total');
     return response.data;
   },
+
+  getOrders: async (
+    page: number = 1,
+    pageSize: number = 10,
+    from?: string,
+    to?: string,
+    status?: string
+  ): Promise<ResponseDto<PagedResponseDto<OrderResponseDto>>> => {
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    params.append('pageSize', pageSize.toString());
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    if (status) params.append('status', status);
+    const response = await api.get<ResponseDto<PagedResponseDto<OrderResponseDto>>>(
+      `/order?${params.toString()}`
+    );
+    return response.data;
+  },
+
+  getOrdersCount: async (
+    from?: string,
+    to?: string,
+    status?: string
+  ): Promise<ResponseDto<number>> => {
+    const params = new URLSearchParams();
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    if (status) params.append('status', status);
+    const response = await api.get<ResponseDto<number>>(`/order/count?${params.toString()}`);
+    return response.data;
+  },
 };
 
 export const drinkApi = {
@@ -145,6 +177,21 @@ export const shiftApi = {
     const response = await api.post<ResponseDto<ShiftDto>>('/shift/stop', {});
     return response.data;
   },
+
+  createShift: async (createShiftDto: CreateShiftDto): Promise<ResponseDto<boolean>> => {
+    const response = await api.post<ResponseDto<boolean>>('/shift/create', createShiftDto);
+    return response.data;
+  },
+
+  updateShift: async (shiftId: number, updateShiftDto: CreateShiftDto): Promise<ResponseDto<boolean>> => {
+    const response = await api.put<ResponseDto<boolean>>(`/shift/update/${shiftId}`, updateShiftDto);
+    return response.data;
+  },
+
+  deleteShift: async (shiftId: number): Promise<ResponseDto<boolean>> => {
+    const response = await api.delete<ResponseDto<boolean>>(`/shift/delete/${shiftId}`);
+    return response.data;
+  },
 };
 
 export const paymentApi = {
@@ -155,6 +202,36 @@ export const paymentApi = {
 
   getPaymentsByOrder: async (orderId: number): Promise<ResponseDto<PaymentDto[]>> => {
     const response = await api.get<ResponseDto<PaymentDto[]>>(`/payment/order/${orderId}`);
+    return response.data;
+  },
+
+  getPaymentSummary: async (
+    from?: string,
+    to?: string
+  ): Promise<ResponseDto<{ totalRevenue: number; paymentsCount: number }>> => {
+    const params = new URLSearchParams();
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    const response = await api.get<ResponseDto<{ totalRevenue: number; paymentsCount: number }>>(
+      `/payment/summary?${params.toString()}`
+    );
+    return response.data;
+  },
+
+  getPayments: async (
+    page: number = 1,
+    pageSize: number = 10,
+    from?: string,
+    to?: string
+  ): Promise<ResponseDto<PagedResponseDto<PaymentDto>>> => {
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    params.append('pageSize', pageSize.toString());
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    const response = await api.get<ResponseDto<PagedResponseDto<PaymentDto>>>(
+      `/payment/paged?${params.toString()}`
+    );
     return response.data;
   },
 };
@@ -217,6 +294,36 @@ export const userApi = {
   reactivateUser: async (userId: string): Promise<ResponseDto<boolean>> => {
     const response = await api.put<ResponseDto<boolean>>(
       `/user/ReactivateUser/${userId}`
+    );
+    return response.data;
+  },
+};
+
+export const statisticsApi = {
+  getOverview: async (
+    from?: string,
+    to?: string
+  ): Promise<ResponseDto<import('../types/statistics').StatisticsOverviewDto>> => {
+    const params = new URLSearchParams();
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    const response = await api.get<ResponseDto<import('../types/statistics').StatisticsOverviewDto>>(
+      `/statistics/overview?${params.toString()}`
+    );
+    return response.data;
+  },
+
+  getTopDrinks: async (
+    limit: number = 5,
+    from?: string,
+    to?: string
+  ): Promise<ResponseDto<import('../types/statistics').TopDrinkDto[]>> => {
+    const params = new URLSearchParams();
+    params.append('limit', limit.toString());
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    const response = await api.get<ResponseDto<import('../types/statistics').TopDrinkDto[]>>(
+      `/statistics/top-drinks?${params.toString()}`
     );
     return response.data;
   },

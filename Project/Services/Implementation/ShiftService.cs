@@ -55,26 +55,52 @@ namespace Project.Services.Implementation
 
         public async Task<ResponseDto<bool>> DeleteShift(int shiftId)
         {
-            var shift = await _context.Shifts.FindAsync(shiftId);
+            var shift = await _context.Shifts
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.Id == shiftId);
+            
             if (shift == null)
             {
                 return ResponseDto<bool>.Failure("Shift not found.");
             }
-            _context.Shifts.Remove(shift);
+
+            // Check if shift has associated orders
+            var hasOrders = await _context.Orders.AnyAsync(o => o.ShiftId == shiftId);
+            
+            // Soft delete: Mark as inactive and set end time if not already set
+            shift.IsActive = false;
+            if (shift.EndTime == null)
+            {
+                shift.EndTime = DateTime.UtcNow;
+            }
+
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Shift {ShiftId} deleted by {DeletedBy}", shiftId, _currentUserService.GetCurrentUserId() ?? "System");
-            return ResponseDto<bool>.SuccessResponse(true, "Shift deleted successfully.");
+            
+            var message = hasOrders 
+                ? "Shift archived successfully (has associated orders)." 
+                : "Shift deleted successfully.";
+            
+            _logger.LogInformation("Shift {ShiftId} soft deleted by {DeletedBy}. Has orders: {HasOrders}", 
+                shiftId, _currentUserService.GetCurrentUserId() ?? "System", hasOrders);
+            
+            return ResponseDto<bool>.SuccessResponse(true, message);
         }
 
         public async Task<ResponseDto<List<ShiftDto>>> GetAllShifts()
         {
             var shifts = await _context.Shifts
                 .Include(s => s.User)
+                .OrderByDescending(s => s.CreatedAt)
                 .ToListAsync();
             var shiftDtos = shifts.Select(s => new ShiftDto
             {
                 Id = s.Id,
                 UserId = s.UserId,
+                UserName = s.User != null 
+                    ? (!string.IsNullOrWhiteSpace(s.User.FirstName) || !string.IsNullOrWhiteSpace(s.User.LastName)
+                        ? $"{s.User.FirstName ?? ""} {s.User.LastName ?? ""}".Trim()
+                        : s.User.Email ?? s.User.UserName ?? s.UserId)
+                    : null,
                 ShiftType = s.ShiftType,
                 StartTime = s.StartTime,
                 EndTime = s.EndTime,
@@ -88,6 +114,7 @@ namespace Project.Services.Implementation
         public async Task<ResponseDto<ShiftDto>> GetMyShift()
         {
             var shift = await _context.Shifts
+                .Include(s => s.User)
                 .FirstOrDefaultAsync(s => s.UserId == _currentUserService.GetCurrentUserId() && s.EndTime == null);
             if (shift == null)
                 {
@@ -97,6 +124,7 @@ namespace Project.Services.Implementation
             {
                 Id = shift.Id,
                 UserId = shift.UserId,
+                UserName = shift.User != null ? $"{shift.User.FirstName} {shift.User.LastName}" : null,
                 ShiftType = shift.ShiftType,
                 StartTime = shift.StartTime,
                 EndTime = shift.EndTime,
@@ -108,7 +136,9 @@ namespace Project.Services.Implementation
 
         public async Task<ResponseDto<ShiftDto>> GetShiftById(int shiftId)
         {
-            var shift = await _context.Shifts.FindAsync(shiftId);
+            var shift = await _context.Shifts
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.Id == shiftId);
             if (shift == null)
             {
                 return ResponseDto<ShiftDto>.Failure("Shift not found.");
@@ -117,6 +147,7 @@ namespace Project.Services.Implementation
             {
                 Id = shift.Id,
                 UserId = shift.UserId,
+                UserName = shift.User != null ? $"{shift.User.FirstName} {shift.User.LastName}" : null,
                 ShiftType = shift.ShiftType,
                 StartTime = shift.StartTime,
                 EndTime = shift.EndTime,

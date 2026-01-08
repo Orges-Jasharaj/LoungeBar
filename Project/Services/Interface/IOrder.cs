@@ -9,6 +9,8 @@ namespace Project.Services.Interface
         Task<ResponseDto<List<OrderResponseDto>>> GetMyOrders();
         Task<ResponseDto<OrderResponseDto>> GetOrderById(int orderId);
         Task<ResponseDto<List<OrderResponseDto>>> GetAllOrders();
+        Task<ResponseDto<PagedResponseDto<OrderResponseDto>>> GetOrders(int page = 1, int pageSize = 10, DateTime? from = null, DateTime? to = null, string? status = null);
+        Task<ResponseDto<int?>> GetOrdersCount(DateTime? from = null, DateTime? to = null, string? status = null);
         Task<ResponseDto<bool>> UpdateOrderStatus(int orderId, string status);
         Task<ResponseDto<bool>> HideOrderFromCustomers(int orderId);
         Task<ResponseDto<bool>> DeleteOrder(int orderId);

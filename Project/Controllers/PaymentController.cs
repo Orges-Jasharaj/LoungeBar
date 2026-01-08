@@ -39,5 +39,25 @@ namespace Project.Controllers
         {
             return Ok(await _paymentService.GetPaymentsByOrder(orderId));
         }
+
+        [HttpGet("summary")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin}")]
+        public async Task<IActionResult> GetPaymentSummary(
+            [FromQuery] DateTime? from = null,
+            [FromQuery] DateTime? to = null)
+        {
+            return Ok(await _paymentService.GetPaymentSummary(from, to));
+        }
+
+        [HttpGet("paged")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin}")]
+        public async Task<IActionResult> GetPayments(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] DateTime? from = null,
+            [FromQuery] DateTime? to = null)
+        {
+            return Ok(await _paymentService.GetPayments(page, pageSize, from, to));
+        }
     }
 }

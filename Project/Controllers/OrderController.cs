@@ -32,6 +32,28 @@ namespace Project.Controllers
             return Ok(await _orderService.GetAllOrders());
         }
 
+        [HttpGet]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.Employee}")]
+        public async Task<IActionResult> GetOrders(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] DateTime? from = null,
+            [FromQuery] DateTime? to = null,
+            [FromQuery] string? status = null)
+        {
+            return Ok(await _orderService.GetOrders(page, pageSize, from, to, status));
+        }
+
+        [HttpGet("count")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.Employee}")]
+        public async Task<IActionResult> GetOrdersCount(
+            [FromQuery] DateTime? from = null,
+            [FromQuery] DateTime? to = null,
+            [FromQuery] string? status = null)
+        {
+            return Ok(await _orderService.GetOrdersCount(from, to, status));
+        }
+
         [HttpGet("table/{tableId}")]
         [Authorize]
         public async Task<IActionResult> GetOrdersByTable(

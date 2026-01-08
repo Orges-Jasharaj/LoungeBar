@@ -214,13 +214,13 @@ namespace Project.Services.Implementation
             }
         }
 
-        public async Task<ResponseDto<List<UserDto>>> GetAllUsersAsync(ClaimsPrincipal currentUser)
+        public async Task<ResponseDto<List<UserDto>>> GetAllUsersAsync(ClaimsPrincipal? currentUser)
         {
             try
             {
                 IQueryable<User> query = _appDbContext.Users;
 
-                if (currentUser.IsInRole(RoleTypes.Admin) || currentUser.IsInRole(RoleTypes.SuperAdmin))
+                if (currentUser != null && (currentUser.IsInRole(RoleTypes.Admin) || currentUser.IsInRole(RoleTypes.SuperAdmin)))
                 {
                     query = query.IgnoreQueryFilters();
                 }

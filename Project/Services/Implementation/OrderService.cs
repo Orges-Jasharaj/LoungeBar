@@ -262,6 +262,98 @@ namespace Project.Services.Implementation
                 .SuccessResponse(result, "All orders retrieved successfully.");
         }
 
+        public async Task<ResponseDto<PagedResponseDto<OrderResponseDto>>> GetOrders(int page = 1, int pageSize = 10, DateTime? from = null, DateTime? to = null, string? status = null)
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 100) pageSize = 10;
+
+            var query = _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.Table)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Drink)
+                .AsQueryable();
+
+            if (from.HasValue)
+            {
+                query = query.Where(o => o.CreatedAt >= from.Value);
+            }
+
+            if (to.HasValue)
+            {
+                query = query.Where(o => o.CreatedAt <= to.Value);
+            }
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                if (Enum.TryParse<OrderStatus>(status, true, out var statusEnum))
+                {
+                    query = query.Where(o => o.Status == statusEnum);
+                }
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var orders = await query
+                .OrderByDescending(o => o.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var result = orders.Select(MapToOrderResponse).ToList();
+
+            var pagedResponse = new PagedResponseDto<OrderResponseDto>
+            {
+                Items = result,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            _logger.LogInformation(
+                "Orders retrieved with filters. Page: {Page}, PageSize: {PageSize}, Total: {TotalCount}",
+                page,
+                pageSize,
+                totalCount
+            );
+
+            return ResponseDto<PagedResponseDto<OrderResponseDto>>.SuccessResponse(
+                pagedResponse,
+                "Orders retrieved successfully."
+            );
+        }
+
+        public async Task<ResponseDto<int?>> GetOrdersCount(DateTime? from = null, DateTime? to = null, string? status = null)
+        {
+            var query = _context.Orders.AsQueryable();
+
+            if (from.HasValue)
+            {
+                query = query.Where(o => o.CreatedAt >= from.Value);
+            }
+
+            if (to.HasValue)
+            {
+                query = query.Where(o => o.CreatedAt <= to.Value);
+            }
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                if (Enum.TryParse<OrderStatus>(status, true, out var statusEnum))
+                {
+                    query = query.Where(o => o.Status == statusEnum);
+                }
+            }
+
+            var count = await query.CountAsync();
+
+            _logger.LogInformation(
+                "Orders count retrieved. Count: {Count}",
+                count
+            );
+
+            return ResponseDto<int?>.SuccessResponse(count, "Orders count retrieved successfully.");
+        }
 
         public async Task<ResponseDto<decimal>> GetTotalOrdersByShift(int shiftId)
         {
