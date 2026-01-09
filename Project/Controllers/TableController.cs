@@ -11,10 +11,12 @@ namespace Project.Controllers
     public class TableController : ControllerBase
     {
         private readonly ITable _tableService;
+        private readonly ITableSessionService _tableSessionService;
 
-        public TableController(ITable tableService)
+        public TableController(ITable tableService, ITableSessionService tableSessionService)
         {
             _tableService = tableService;
+            _tableSessionService = tableSessionService;
         }
 
         [HttpPost]
@@ -50,6 +52,22 @@ namespace Project.Controllers
         public async Task<IActionResult> GetTableActiveOrders(int tableNumber)
         {
             return Ok(await _tableService.GetTableActiveOrders(tableNumber));
+        }
+
+        // Endpoint për të krijuar session kur klienti skanon QR code
+        [HttpPost("session/{tableNumber}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CreateTableSession(int tableNumber)
+        {
+            return Ok(await _tableSessionService.CreateTableSession(tableNumber));
+        }
+
+        // Endpoint për të marrë porositë aktive me session GUID
+        [HttpGet("session/{sessionGuid}/table-{tableNumber}/active-orders")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetTableActiveOrdersBySession(Guid sessionGuid, int tableNumber)
+        {
+            return Ok(await _tableSessionService.GetTableActiveOrdersBySession(sessionGuid, tableNumber));
         }
 
         [HttpPut("number/{tableNumber}/hide-order")]

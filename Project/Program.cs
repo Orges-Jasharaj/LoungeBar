@@ -109,6 +109,7 @@ namespace Project
             builder.Services.AddScoped<IDrink, DrinkService>();
             builder.Services.AddScoped<IOrder, OrderService>();
             builder.Services.AddScoped<ITable, TableService>();
+            builder.Services.AddScoped<ITableSessionService, TableSessionService>();
             builder.Services.AddScoped<IReservation, ReservationService>();
             builder.Services.AddScoped<IPayment, PaymentService>();
             builder.Services.AddScoped<IShift, ShiftService>();
@@ -116,6 +117,8 @@ namespace Project
 
             builder.Services.AddHttpContextAccessor();
 
+            // Add Memory Cache për session management (GUID + TableNumber)
+            builder.Services.AddMemoryCache();
 
             builder.Services.AddAuthorization();
 
