@@ -12,11 +12,13 @@ namespace Project.Controllers
     {
         private readonly ITable _tableService;
         private readonly ITableSessionService _tableSessionService;
+        private readonly IQRCodeService _qrCodeService;
 
-        public TableController(ITable tableService, ITableSessionService tableSessionService)
+        public TableController(ITable tableService, ITableSessionService tableSessionService, IQRCodeService qrCodeService)
         {
             _tableService = tableService;
             _tableSessionService = tableSessionService;
+            _qrCodeService = qrCodeService;
         }
 
         [HttpPost]
@@ -70,6 +72,14 @@ namespace Project.Controllers
             return Ok(await _tableSessionService.GetTableActiveOrdersBySession(sessionGuid, tableNumber));
         }
 
+        // Endpoint për të marrë porositë aktive me vetëm session GUID (merr tableNumber nga cache)
+        [HttpGet("session/{sessionGuid}/active-orders")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetTableActiveOrdersBySessionGuid(Guid sessionGuid)
+        {
+            return Ok(await _tableSessionService.GetTableActiveOrdersBySessionGuid(sessionGuid));
+        }
+
         [HttpPut("number/{tableNumber}/hide-order")]
         [AllowAnonymous]
         public async Task<IActionResult> HideTableLatestOrder(int tableNumber)
@@ -89,6 +99,47 @@ namespace Project.Controllers
         public async Task<IActionResult> DeleteTable(int tableId)
         {
             return Ok(await _tableService.DeleteTable(tableId));
+        }
+
+        // Endpoint për të gjeneruar QR Code për tavolinë
+        [HttpPost("{tableId}/generate-qrcode")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin}")]
+        public async Task<IActionResult> GenerateQRCodeForTable(int tableId, [FromQuery] string? baseUrl = null)
+        {
+            var table = await _tableService.GetTableById(tableId);
+            if (!table.Success || table.Data == null)
+            {
+                return BadRequest(table);
+            }
+
+            // Nëse baseUrl nuk jepet, QRCodeService do ta marrë nga configuration
+            var result = await _qrCodeService.GenerateAndSaveQRCodeForTable(table.Data.Number, baseUrl);
+            return Ok(result);
+        }
+
+        // Endpoint për të marrë QR Code image për tavolinë
+        [HttpGet("number/{tableNumber}/qrcode")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin}")]
+        public async Task<IActionResult> GetQRCodeForTable(int tableNumber)
+        {
+            var table = await _tableService.GetTableByNumber(tableNumber);
+            if (!table.Success || table.Data == null)
+            {
+                return NotFound(table);
+            }
+
+            // Nëse QR Code nuk ekziston, gjenero atë (do të përdorë baseUrl nga configuration)
+            if (table.Data.QRCodeImage == null || table.Data.QRCodeImage.Length == 0)
+            {
+                var generateResult = await _qrCodeService.GenerateAndSaveQRCodeForTable(tableNumber, null);
+                if (!generateResult.Success)
+                {
+                    return BadRequest(generateResult);
+                }
+                return File(generateResult.Data, "image/png");
+            }
+
+            return File(table.Data.QRCodeImage, "image/png");
         }
     }
 }

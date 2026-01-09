@@ -110,6 +110,7 @@ namespace Project
             builder.Services.AddScoped<IOrder, OrderService>();
             builder.Services.AddScoped<ITable, TableService>();
             builder.Services.AddScoped<ITableSessionService, TableSessionService>();
+            builder.Services.AddScoped<IQRCodeService, QRCodeService>();
             builder.Services.AddScoped<IReservation, ReservationService>();
             builder.Services.AddScoped<IPayment, PaymentService>();
             builder.Services.AddScoped<IShift, ShiftService>();

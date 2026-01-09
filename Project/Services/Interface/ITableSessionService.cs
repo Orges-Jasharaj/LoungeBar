@@ -18,5 +18,10 @@ namespace Project.Services.Interface
         /// Merr porositë aktive për tavolinë duke përdorur session GUID
         /// </summary>
         Task<ResponseDto<List<TableOrderSummaryDto>>> GetTableActiveOrdersBySession(Guid sessionGuid, int tableNumber);
+        
+        /// <summary>
+        /// Merr porositë aktive për tavolinë duke përdorur vetëm session GUID (merr tableNumber nga cache)
+        /// </summary>
+        Task<ResponseDto<List<TableOrderSummaryDto>>> GetTableActiveOrdersBySessionGuid(Guid sessionGuid);
     }
 }

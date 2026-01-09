@@ -12,6 +12,14 @@ export default defineConfig({
         changeOrigin: true,
       }
     }
+  },
+  // Siguro që të gjitha routes të servojnë index.html për SPA routing
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
   }
 })
 

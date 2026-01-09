@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { LoginDto, CreateUserDto, LoginResponseDto } from '../types/auth';
-import type { TableDto } from '../types/table';
+import type { TableDto, TableOrderSummaryDto } from '../types/table';
 import type { CreateOrderRequestDto, OrderResponseDto } from '../types/order';
 import type { DrinkDto } from '../types/drink';
 import type { ResponseDto, PagedResponseDto } from '../types/response';
@@ -71,6 +71,25 @@ export const tableApi = {
 
   getTableById: async (tableId: number): Promise<ResponseDto<TableDto>> => {
     const response = await api.get<ResponseDto<TableDto>>(`/table/${tableId}`);
+    return response.data;
+  },
+
+  createTableSession: async (tableNumber: number): Promise<ResponseDto<string>> => {
+    const response = await api.post<ResponseDto<string>>(`/table/session/${tableNumber}`);
+    return response.data;
+  },
+
+  getTableActiveOrdersBySession: async (sessionGuid: string, tableNumber: number): Promise<ResponseDto<TableOrderSummaryDto[]>> => {
+    const response = await api.get<ResponseDto<TableOrderSummaryDto[]>>(
+      `/table/session/${sessionGuid}/table-${tableNumber}/active-orders`
+    );
+    return response.data;
+  },
+
+  getTableActiveOrdersBySessionGuid: async (sessionGuid: string): Promise<ResponseDto<TableOrderSummaryDto[]>> => {
+    const response = await api.get<ResponseDto<TableOrderSummaryDto[]>>(
+      `/table/session/${sessionGuid}/active-orders`
+    );
     return response.data;
   },
 };

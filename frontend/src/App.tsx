@@ -7,6 +7,7 @@ import Dashboard from './components/Dashboard';
 import WaiterDashboard from './components/WaiterDashboard';
 import SuperAdminDashboard from './components/SuperAdminDashboard';
 import AdminDashboard from './components/AdminDashboard';
+import TableRouteHandler from './components/TableRouteHandler';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -94,6 +95,10 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          {/* Public routes për klientët - pa autentifikim */}
+          {/* TableRouteHandler kontrollon manualisht URL-në dhe e renderon komponentin e duhur */}
+          {/* Duhet të jetë në fund për të kapur vetëm routes që nuk janë kapur nga routes të tjera */}
+          <Route path="*" element={<TableRouteHandler />} />
           <Route path="/" element={<HomeRedirect />} />
         </Routes>
       </Router>

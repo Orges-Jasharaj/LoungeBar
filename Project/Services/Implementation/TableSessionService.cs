@@ -35,8 +35,13 @@ namespace Project.Services.Implementation
                 return ResponseDto<string>.Failure($"Table with number {tableNumber} not found.");
             }
 
+            // Invalidojmë të gjitha session-et e vjetra për këtë tavolinë
+            await InvalidateOldSessionsForTable(tableNumber);
+
+            // Krijo një GUID të ri për këtë session
             var sessionGuid = Guid.NewGuid();
             var cacheKey = $"table_session_{sessionGuid}";
+            var tableSessionKey = $"table_{tableNumber}_current_session";
 
             var cacheEntryOptions = new MemoryCacheEntryOptions
             {
@@ -44,10 +49,15 @@ namespace Project.Services.Implementation
                 SlidingExpiration = TimeSpan.FromHours(1) 
             };
 
+            // Ruaj session në cache me dy keys:
+            // 1. Session GUID -> TableNumber (për validim)
             _memoryCache.Set(cacheKey, tableNumber, cacheEntryOptions);
+            
+            // 2. TableNumber -> Current Session GUID (për të invaliduar session-et e vjetra)
+            _memoryCache.Set(tableSessionKey, sessionGuid, cacheEntryOptions);
 
             _logger.LogInformation(
-                "Table session created: GUID={SessionGuid}, TableNumber={TableNumber}",
+                "Table session created: GUID={SessionGuid}, TableNumber={TableNumber} (old sessions invalidated)",
                 sessionGuid,
                 tableNumber
             );
@@ -56,6 +66,24 @@ namespace Project.Services.Implementation
                 sessionGuid.ToString(),
                 "Table session created successfully."
             );
+        }
+
+        private async Task InvalidateOldSessionsForTable(int tableNumber)
+        {
+            var tableSessionKey = $"table_{tableNumber}_current_session";
+            
+            // Nëse ka session të vjetër për këtë tavolinë, fshijmë atë
+            if (_memoryCache.TryGetValue(tableSessionKey, out Guid oldSessionGuid))
+            {
+                var oldCacheKey = $"table_session_{oldSessionGuid}";
+                _memoryCache.Remove(oldCacheKey);
+                
+                _logger.LogInformation(
+                    "Invalidated old session: GUID={OldSessionGuid}, TableNumber={TableNumber}",
+                    oldSessionGuid,
+                    tableNumber
+                );
+            }
         }
 
         public async Task<ResponseDto<bool>> ValidateTableSession(Guid sessionGuid, int tableNumber)
@@ -154,6 +182,23 @@ namespace Project.Services.Implementation
                 ordersSummary,
                 "Active orders retrieved successfully."
             );
+        }
+
+        public async Task<ResponseDto<List<TableOrderSummaryDto>>> GetTableActiveOrdersBySessionGuid(Guid sessionGuid)
+        {
+            var cacheKey = $"table_session_{sessionGuid}";
+
+            if (!_memoryCache.TryGetValue(cacheKey, out int tableNumber))
+            {
+                _logger.LogWarning(
+                    "Invalid table session: GUID={SessionGuid} not found in cache",
+                    sessionGuid
+                );
+                return ResponseDto<List<TableOrderSummaryDto>>.Failure("Invalid or expired session.");
+            }
+
+            // Përdor metodën ekzistuese me tableNumber që u gjet nga cache
+            return await GetTableActiveOrdersBySession(sessionGuid, tableNumber);
         }
     }
 }
