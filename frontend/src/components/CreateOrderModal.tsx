@@ -33,7 +33,7 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
         setDrinks(response.data.filter((drink) => drink.isAvailable));
       }
     } catch (err: any) {
-      setError(err.message || 'Gabim në ngarkimin e pijeve');
+      setError(err.message || 'Error loading drinks');
     } finally {
       setLoading(false);
     }
@@ -77,7 +77,7 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (orderItems.length === 0) {
-      setError('Ju lutem shtoni të paktën një artikull');
+      setError('Please add at least one item');
       return;
     }
 
@@ -92,10 +92,10 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
       if (response.success) {
         onOrderCreated();
       } else {
-        setError(response.message || 'Dështoi krijimi i porosisë');
+        setError(response.message || 'Failed to create order');
       }
     } catch (err: any) {
-      setError(err.message || 'Gabim në krijimin e porosisë');
+      setError(err.message || 'Error creating order');
     } finally {
       setSubmitting(false);
     }
@@ -112,7 +112,7 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Krijo Porosi për Tavolinë {tableNumber}</h2>
+          <h2>Create Order for Table {tableNumber}</h2>
           <button onClick={onClose} className="close-btn">
             ×
           </button>
@@ -123,11 +123,11 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
             {loading ? (
-              <div className="loading">Duke ngarkuar pijet...</div>
+              <div className="loading">Loading drinks...</div>
             ) : (
               <>
                 <div className="drinks-section">
-                  <h3>Pijet e Disponueshme</h3>
+                  <h3>Available Drinks</h3>
                   <div className="drinks-grid">
                     {drinks.map((drink) => {
                       const quantity = getItemQuantity(drink.id);
@@ -156,7 +156,7 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                               onClick={() => handleAddItem(drink.id)}
                               className="add-btn"
                             >
-                              {quantity > 0 ? '+' : 'Shto'}
+                              {quantity > 0 ? '+' : 'Add'}
                             </button>
                           </div>
                         </div>
@@ -167,7 +167,7 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
 
                 {orderItems.length > 0 && (
                   <div className="order-summary">
-                    <h3>Përmbledhje e Porosisë</h3>
+                    <h3>Order Summary</h3>
                     <div className="summary-items">
                       {orderItems.map((item) => {
                         const drink = drinks.find((d) => d.id === item.drinkId);
@@ -191,14 +191,14 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
 
           <div className="modal-footer">
             <button type="button" onClick={onClose} className="cancel-btn">
-              Anulo
+              Cancel
             </button>
             <button
               type="submit"
               disabled={submitting || orderItems.length === 0}
               className="submit-btn"
             >
-              {submitting ? 'Duke krijuar...' : 'Krijo Porosi'}
+              {submitting ? 'Creating...' : 'Create Order'}
             </button>
           </div>
         </form>

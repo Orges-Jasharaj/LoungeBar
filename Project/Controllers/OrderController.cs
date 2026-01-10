@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Project.Data.Models;
@@ -114,6 +114,29 @@ namespace Project.Controllers
         public async Task<IActionResult> GetTotalOrdersByMyCurrentShift()
         {
             return Ok(await _orderService.GetTotalOrdersByMyCurrentShift());
+        }
+
+        [HttpGet("waiter/{waiterId}/total")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin}")]
+        public async Task<IActionResult> GetTotalOrdersByWaiterId(string waiterId)
+        {
+            return Ok(await _orderService.GetTotalOrdersByWaiterId(waiterId));
+        }
+
+        [HttpGet("waiter/{waiterId}/orders")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin}")]
+        public async Task<IActionResult> GetOrdersByWaiterId(
+            string waiterId,
+            [FromQuery] int? shiftId = null)
+        {
+            return Ok(await _orderService.GetOrdersByWaiterId(waiterId, shiftId));
+        }
+
+        [HttpGet("waiters/daily-sales")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin}")]
+        public async Task<IActionResult> GetAllWaitersDailySales()
+        {
+            return Ok(await _orderService.GetAllWaitersDailySales());
         }
     }
 }

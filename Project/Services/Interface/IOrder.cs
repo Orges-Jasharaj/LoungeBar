@@ -1,4 +1,4 @@
-﻿using Project.Dtos.Requests;
+using Project.Dtos.Requests;
 using Project.Dtos.Responses;
 
 namespace Project.Services.Interface
@@ -17,6 +17,9 @@ namespace Project.Services.Interface
         Task<ResponseDto<decimal>> GetTotalOrdersByShift(int shiftId);
         Task<ResponseDto<decimal>> GetTotalOrdersByMyCurrentShift();
         Task<ResponseDto<PagedResponseDto<OrderResponseDto>>> GetOrdersByTable(int tableId, int page = 1, int pageSize = 10);
+        Task<ResponseDto<decimal>> GetTotalOrdersByWaiterId(string waiterId);
+        Task<ResponseDto<List<OrderResponseDto>>> GetOrdersByWaiterId(string waiterId, int? shiftId = null);
+        Task<ResponseDto<List<WaiterDailySalesDto>>> GetAllWaitersDailySales();
 
     }
 }

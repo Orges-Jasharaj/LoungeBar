@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Project.Data;
 using Project.Data.Models;
 using Project.Dtos.Requests;
@@ -37,11 +37,17 @@ namespace Project.Services.Implementation
                 return ResponseDto<bool>.Failure("User already has an active shift.");
             }
 
+            if (!createShiftDto.StartTime.HasValue)
+            {
+                return ResponseDto<bool>.Failure("StartTime is required to create a shift.");
+            }
+
             var newShift = new Shift
             {
                 UserId = createShiftDto.UserId,
                 ShiftType = createShiftDto.ShiftType,
                 Notes = createShiftDto.Notes,
+                StartTime = createShiftDto.StartTime.Value, 
                 CreatedBy = userId ?? "System",
                 CreatedAt = DateTime.UtcNow
             };
@@ -64,10 +70,8 @@ namespace Project.Services.Implementation
                 return ResponseDto<bool>.Failure("Shift not found.");
             }
 
-            // Check if shift has associated orders
             var hasOrders = await _context.Orders.AnyAsync(o => o.ShiftId == shiftId);
             
-            // Soft delete: Mark as inactive and set end time if not already set
             shift.IsActive = false;
             if (shift.EndTime == null)
             {

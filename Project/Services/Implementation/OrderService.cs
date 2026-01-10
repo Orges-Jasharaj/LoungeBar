@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Project.Data;
 using Project.Data.Enums;
 using Project.Data.Models;
@@ -418,12 +418,10 @@ namespace Project.Services.Implementation
                 return ResponseDto<PagedResponseDto<OrderResponseDto>>.Failure("Table not found.");
             }
 
-            // Numri total i porosive për këtë tavolinë dhe këtë kamarier
             var totalCount = await _context.Orders
                 .Where(o => o.TableId == tableId && o.UserId == userId)
                 .CountAsync();
 
-            // Porositë me paginim - vetëm për këtë kamarier
             var orders = await _context.Orders
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Drink)
@@ -459,12 +457,161 @@ namespace Project.Services.Implementation
             );
         }
 
+        public async Task<ResponseDto<decimal>> GetTotalOrdersByWaiterId(string waiterId)
+        {
+            var activeShift = await _context.Shifts
+                .FirstOrDefaultAsync(s => s.UserId == waiterId && s.EndTime == null);
+
+            if (activeShift == null)
+            {
+                return ResponseDto<decimal>.SuccessResponse(0, "No active shift found for this waiter.");
+            }
+
+            var total = await _context.Orders
+                .Where(o => o.ShiftId == activeShift.Id && o.UserId == waiterId)
+                .SumAsync(o => o.TotalAmount);
+
+            _logger.LogInformation(
+                "Total orders for waiter {WaiterId} in active shift {ShiftId} retrieved: {Total}",
+                waiterId,
+                activeShift.Id,
+                total
+            );
+
+            return ResponseDto<decimal>.SuccessResponse(total, "Total orders for waiter's shift retrieved successfully.");
+        }
+
+        public async Task<ResponseDto<List<OrderResponseDto>>> GetOrdersByWaiterId(string waiterId, int? shiftId = null)
+        {
+            var query = _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Drink)
+                .Include(o => o.Table)
+                .Include(o => o.User)
+                .Where(o => o.UserId == waiterId)
+                .AsQueryable();
+
+            if (shiftId.HasValue)
+            {
+                var shift = await _context.Shifts.FindAsync(shiftId.Value);
+                
+                if (shift == null)
+                {
+                    return ResponseDto<List<OrderResponseDto>>.Failure("Shift not found.");
+                }
+
+                query = query.Where(o => o.ShiftId == shiftId.Value);
+                
+                if (shift.StartTime.HasValue)
+                {
+                    query = query.Where(o => o.CreatedAt >= shift.StartTime.Value);
+                    
+                    var endTimeFilter = shift.EndTime ?? DateTime.UtcNow;
+                    query = query.Where(o => o.CreatedAt <= endTimeFilter);
+                }
+            }
+
+            var orders = await query
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+
+            var result = orders.Select(MapToOrderResponse).ToList();
+
+            _logger.LogInformation(
+                "Orders for waiter {WaiterId} retrieved. Count: {Count}",
+                waiterId,
+                result.Count
+            );
+
+            return ResponseDto<List<OrderResponseDto>>
+                .SuccessResponse(result, "Orders for waiter retrieved successfully.");
+        }
+
+        public async Task<ResponseDto<List<WaiterDailySalesDto>>> GetAllWaitersDailySales()
+        {
+            var now = DateTime.UtcNow;
+
+            var relevantShifts = await _context.Shifts
+                .Include(s => s.User)
+                .Where(s => s.StartTime.HasValue && s.EndTime == null) 
+                .ToListAsync();
+
+            if (relevantShifts.Count == 0)
+            {
+                return ResponseDto<List<WaiterDailySalesDto>>
+                    .SuccessResponse(new List<WaiterDailySalesDto>(), "No waiters with active shifts for today.");
+            }
+
+            var waiterIds = relevantShifts.Select(s => s.UserId).Distinct().ToList();
+            var waiterSales = new List<WaiterDailySalesDto>();
+
+            foreach (var waiterId in waiterIds)
+            {
+                var waiterShifts = relevantShifts.Where(s => s.UserId == waiterId).ToList();
+                
+                if (!waiterShifts.Any()) continue;
+
+                var firstShift = waiterShifts.First();
+                if (firstShift.User == null || !firstShift.User.isActive) continue;
+
+                var user = firstShift.User;
+
+                var activeShift = waiterShifts.FirstOrDefault(s => s.EndTime == null);
+
+                if (activeShift == null) continue;
+
+                if (!activeShift.StartTime.HasValue) continue;
+
+                decimal totalSales = 0;
+                int totalOrders = 0;
+
+                var endTimeFilter = now; 
+
+                var orders = await _context.Orders
+                    .Where(o => o.ShiftId == activeShift.Id 
+                        && o.UserId == waiterId 
+                        && o.CreatedAt >= activeShift.StartTime.Value 
+                        && o.CreatedAt <= endTimeFilter) 
+                    .ToListAsync();
+
+                totalSales = orders.Sum(o => o.TotalAmount);
+                totalOrders = orders.Count;
+
+                if (totalOrders == 0) continue;
+
+                waiterSales.Add(new WaiterDailySalesDto
+                {
+                    WaiterId = waiterId,
+                    WaiterName = user.UserName ?? $"{user.FirstName} {user.LastName}".Trim() ?? "Unknown",
+                    WaiterEmail = user.Email ?? "",
+                    TotalSales = totalSales,
+                    TotalOrders = totalOrders,
+                    ActiveShiftId = activeShift.Id,
+                    ShiftStartTime = activeShift.StartTime,
+                    ShiftEndTime = now
+                });
+            }
+
+            waiterSales = waiterSales
+                .OrderByDescending(w => w.TotalSales)
+                .ToList();
+
+            _logger.LogInformation(
+                "Daily sales for all waiters retrieved. Count: {Count}",
+                waiterSales.Count
+            );
+
+            return ResponseDto<List<WaiterDailySalesDto>>
+                .SuccessResponse(waiterSales, "Daily sales for all waiters retrieved successfully.");
+        }
+
         private static OrderResponseDto MapToOrderResponse(Order order)
         {
             return new OrderResponseDto
             {
                 OrderId = order.Id,
                 OrderDate = order.CreatedAt,
+                UpdatedAt = order.UpdatedAt,
                 Status = order.Status.ToString(),
                 TotalAmount = order.TotalAmount,
                 TableId = order.TableId,

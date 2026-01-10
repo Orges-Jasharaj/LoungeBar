@@ -4,36 +4,36 @@ import TableQRRedirect from './TableQRRedirect';
 import ClientDashboard from './ClientDashboard';
 
 /**
- * Komponent që kontrollon URL-në dhe e renderon komponentin e duhur
- * Kjo është e nevojshme sepse React Router v7 nuk e njeh pattern-in /table-:tableNumber siç duhet
+ * Component that checks the URL and renders the appropriate component
+ * This is necessary because React Router v7 doesn't recognize the /table-:tableNumber pattern properly
  */
 const TableRouteHandler: React.FC = () => {
   const location = useLocation();
   const path = location.pathname;
 
-  // Kontrollo nëse URL-ja fillon me /table- ose është vetëm një GUID format
+  // Check if URL starts with /table- or is just a GUID format
   const isTableRoute = path.startsWith('/table-') || /^\/[a-f0-9-]{36}$/.test(path);
   
-  // Nëse nuk është table route, mos rendero asgjë (do të kapet nga routes të tjera)
+  // If it's not a table route, don't render anything (will be caught by other routes)
   if (!isTableRoute) {
     return null;
   }
 
-  // Kontrollo nëse është format /{guid} (vetëm GUID)
+  // Check if it's format /{guid} (just GUID)
   const sessionMatch = path.match(/^\/([a-f0-9-]{36})$/i);
   if (sessionMatch) {
-    // Ka session GUID, shfaq ClientDashboard
+    // Has session GUID, show ClientDashboard
     return <ClientDashboard />;
   }
 
-  // Kontrollo nëse është format /table-{number}
+  // Check if it's format /table-{number}
   const tableMatch = path.match(/^\/table-(\d+)$/);
   if (tableMatch) {
-    // Nuk ka session GUID, shfaq TableQRRedirect për të krijuar session
+    // No session GUID, show TableQRRedirect to create session
     return <TableQRRedirect />;
   }
 
-  // Nëse nuk match-on asnjë pattern, kthe error
+  // If it doesn't match any pattern, return error
   return (
     <div style={{
       display: 'flex',
@@ -47,8 +47,8 @@ const TableRouteHandler: React.FC = () => {
       textAlign: 'center'
     }}>
       <div style={{ fontSize: '4rem', marginBottom: '20px' }}>⚠️</div>
-      <h2>URL e pavlefshme</h2>
-      <p>URL-ja nuk është në formatin e duhur.</p>
+      <h2>Invalid URL</h2>
+      <p>The URL is not in the correct format.</p>
     </div>
   );
 };

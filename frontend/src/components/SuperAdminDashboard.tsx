@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import UserManagement from './UserManagement';
 import ShiftManagement from './ShiftManagement';
+import DailyBargains from './DailyBargains';
 import './SuperAdminDashboard.css';
 import { statisticsApi } from '../services/api';
 import type { StatisticsOverviewDto, TopDrinkDto } from '../types/statistics';
@@ -10,7 +11,7 @@ import type { StatisticsOverviewDto, TopDrinkDto } from '../types/statistics';
 const SuperAdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'users' | 'statistics' | 'shifts'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'statistics' | 'shifts' | 'dailyBargains'>('users');
 
   const [loadingStats, setLoadingStats] = useState(false);
   const [statsError, setStatsError] = useState<string>('');
@@ -91,11 +92,18 @@ const SuperAdminDashboard: React.FC = () => {
           >
             Shifts
           </button>
+          <button
+            className={`tab ${activeTab === 'dailyBargains' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dailyBargains')}
+          >
+            Daily Bargains
+          </button>
         </div>
 
         <div className="tab-content">
           {activeTab === 'users' && <UserManagement />}
           {activeTab === 'shifts' && <ShiftManagement />}
+          {activeTab === 'dailyBargains' && <DailyBargains />}
           {activeTab === 'statistics' && (
             <div className="statistics-section">
               <div className="statistics-header">

@@ -1,0 +1,252 @@
+.daily-bargains-section {
+  padding: 10px 0;
+  text-align: left;
+}
+
+.daily-bargains-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.daily-bargains-section h2 {
+  color: #333;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.daily-bargains-subtitle {
+  margin: 6px 0 0 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.waiters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.waiter-card {
+  background: #ffffff;
+  border: 1px solid #eef0f4;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.waiter-card-header {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.waiter-card-header:hover {
+  background-color: #f9fafb;
+}
+
+.waiter-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.waiter-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.waiter-email {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.waiter-shift {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+.shift-active {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.waiter-stats {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.waiter-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.waiter-stat-total {
+  padding-right: 20px;
+  border-right: 1px solid #e5e7eb;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.waiter-stat-total .stat-value {
+  color: #667eea;
+}
+
+.waiter-expand-icon {
+  font-size: 12px;
+  color: #6b7280;
+  padding: 8px;
+}
+
+.waiter-orders {
+  border-top: 1px solid #eef0f4;
+  padding: 20px;
+  background-color: #f9fafb;
+}
+
+.orders-loading,
+.no-orders {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.orders-table-container {
+  overflow-x: auto;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.orders-table thead {
+  background-color: #f3f4f6;
+}
+
+.orders-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.orders-table td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #111827;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.orders-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-preparing {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-served {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-paid {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-canceled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.order-amount {
+  font-weight: 700;
+  color: #111827;
+}
+
+.order-date {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.no-data {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .waiter-card-header {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .waiter-stats {
+    justify-content: flex-start;
+  }
+
+  .waiter-expand-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+
+  .orders-table-container {
+    overflow-x: scroll;
+  }
+
+  .orders-table {
+    min-width: 700px;
+  }
+}

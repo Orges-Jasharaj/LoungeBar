@@ -1,4 +1,4 @@
-﻿using Project.Data.Enums;
+using Project.Data.Enums;
 
 namespace Project.Dtos.Requests
 {
@@ -6,6 +6,7 @@ namespace Project.Dtos.Requests
     {
         public string UserId { get; set; }
         public ShiftType ShiftType { get; set; }
+        public DateTime? StartTime { get; set; }
         public string? Notes { get; set; }
     }
 }

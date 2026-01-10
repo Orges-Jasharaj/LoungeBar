@@ -1,9 +1,10 @@
-﻿namespace Project.Dtos.Responses
+namespace Project.Dtos.Responses
 {
     public class OrderResponseDto
     {
         public int OrderId { get; set; }
         public DateTime OrderDate { get; set; }
+        public DateTime? UpdatedAt { get; set; }
         public string Status { get; set; }
         public decimal TotalAmount { get; set; }
         public int TableId { get; set; }

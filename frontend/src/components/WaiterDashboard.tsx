@@ -24,10 +24,10 @@ const WaiterDashboard: React.FC = () => {
       if (response.success && response.data) {
         setTables(response.data);
       } else {
-        setError(response.message || 'Dështoi ngarkimi i tavolinave');
+        setError(response.message || 'Failed to load tables');
       }
     } catch (err: any) {
-      setError(err.message || 'Gabim në ngarkimin e tavolinave');
+      setError(err.message || 'Error loading tables');
     } finally {
       setLoading(false);
     }
@@ -55,11 +55,11 @@ const WaiterDashboard: React.FC = () => {
     <div className="waiter-dashboard">
       <div className="waiter-header">
         <div>
-          <h1>Dashboard i Kamerierit</h1>
-          <p>Mirë se vini, {user?.displayName}!</p>
+          <h1>Waiter Dashboard</h1>
+          <p>Welcome, {user?.displayName}!</p>
         </div>
         <button onClick={logout} className="logout-btn">
-          Dil
+          Logout
         </button>
       </div>
 
@@ -67,18 +67,18 @@ const WaiterDashboard: React.FC = () => {
         {error && <div className="error-banner">{error}</div>}
         
         {loading ? (
-          <div className="loading">Duke ngarkuar tavolinat...</div>
+          <div className="loading">Loading tables...</div>
         ) : (
           <>
             <div className="tables-header">
-              <h2>Tavolinat</h2>
+              <h2>Tables</h2>
               <button onClick={loadTables} className="refresh-btn">
-                Rifresko
+                Refresh
               </button>
             </div>
             <div className="tables-grid">
               {tables.length === 0 ? (
-                <div className="no-tables">Nuk ka tavolina të disponueshme</div>
+                <div className="no-tables">No tables available</div>
               ) : (
                 tables.map((table) => (
                   <div
@@ -86,16 +86,16 @@ const WaiterDashboard: React.FC = () => {
                     className="table-card"
                     onClick={() => handleTableClick(table)}
                   >
-                    <div className="table-number">Tavolina {table.number}</div>
+                    <div className="table-number">Table {table.number}</div>
                     <div className="table-info">
                       <div className="table-capacity">
-                        Kapacitet: {table.capacity} persona
+                        Capacity: {table.capacity} people
                       </div>
                       <div className="table-orders">
-                        Porosi totale: {table.totalOrders}
+                        Total orders: {table.totalOrders}
                       </div>
                     </div>
-                    <div className="table-click-hint">Kliko për të parë porositë</div>
+                    <div className="table-click-hint">Click to view orders</div>
                   </div>
                 ))
               )}

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { LoginDto, CreateUserDto, LoginResponseDto } from '../types/auth';
 import type { TableDto, TableOrderSummaryDto } from '../types/table';
-import type { CreateOrderRequestDto, OrderResponseDto } from '../types/order';
+import type { CreateOrderRequestDto, OrderResponseDto, WaiterDailySalesDto } from '../types/order';
 import type { DrinkDto } from '../types/drink';
 import type { ResponseDto, PagedResponseDto } from '../types/response';
 import type { UserDto, UpdateUserDto } from '../types/user';
@@ -160,6 +160,25 @@ export const orderApi = {
     if (to) params.append('to', to);
     if (status) params.append('status', status);
     const response = await api.get<ResponseDto<number>>(`/order/count?${params.toString()}`);
+    return response.data;
+  },
+
+  getTotalOrdersByWaiterId: async (waiterId: string): Promise<ResponseDto<number>> => {
+    const response = await api.get<ResponseDto<number>>(`/order/waiter/${waiterId}/total`);
+    return response.data;
+  },
+
+  getOrdersByWaiterId: async (waiterId: string, shiftId?: number): Promise<ResponseDto<OrderResponseDto[]>> => {
+    const params = new URLSearchParams();
+    if (shiftId) params.append('shiftId', shiftId.toString());
+    const response = await api.get<ResponseDto<OrderResponseDto[]>>(
+      `/order/waiter/${waiterId}/orders${params.toString() ? '?' + params.toString() : ''}`
+    );
+    return response.data;
+  },
+
+  getAllWaitersDailySales: async (): Promise<ResponseDto<WaiterDailySalesDto[]>> => {
+    const response = await api.get<ResponseDto<WaiterDailySalesDto[]>>('/order/waiters/daily-sales');
     return response.data;
   },
 };

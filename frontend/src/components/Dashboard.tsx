@@ -8,7 +8,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirecto bazuar në role
+    // Redirect based on role
     if (!user) return;
     
     const hasSuperAdminRole = user.roles && Array.isArray(user.roles) && (
@@ -50,9 +50,9 @@ const Dashboard: React.FC = () => {
     navigate('/login');
   };
 
-  // Nëse user-i ka rol SuperAdmin ose Employee, mos shfaq këtë dashboard
+  // If user has SuperAdmin or Employee role, don't show this dashboard
   if (!user) {
-    return <div>Duke u ngarkuar...</div>;
+    return <div>Loading...</div>;
   }
 
   const hasSuperAdminRole = user.roles && Array.isArray(user.roles) && (
@@ -74,7 +74,7 @@ const Dashboard: React.FC = () => {
   );
 
   if (hasSuperAdminRole || hasEmployeeRole || hasAdminRole) {
-    return <div>Duke u ridrejtuar...</div>; // Loading state derisa të bëhet redirect
+    return <div>Redirecting...</div>;
   }
 
   return (
@@ -82,16 +82,16 @@ const Dashboard: React.FC = () => {
       <div className="dashboard-header">
         <h1>LoungeBar Dashboard</h1>
         <div className="user-info">
-          <span>Mirë se vini, {user?.displayName}!</span>
+          <span>Welcome, {user?.displayName}!</span>
           <button onClick={handleLogout} className="logout-button">
-            Dil
+            Logout
           </button>
         </div>
       </div>
       <div className="dashboard-content">
-        <p>Kjo është faqja kryesore. Këtu do të shfaqen porositë e tavolinës pasi të skanoni QR kodin.</p>
+        <p>This is the main page. Table orders will be displayed here after you scan the QR code.</p>
         <p>Email: {user?.email}</p>
-        <p>Roli: {user?.roles ? user.roles.join(', ') : 'N/A'}</p>
+        <p>Role: {user?.roles ? user.roles.join(', ') : 'N/A'}</p>
       </div>
     </div>
   );

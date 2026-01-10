@@ -30,12 +30,12 @@ const Register: React.FC = () => {
 
     // Validimi
     if (formData.password !== formData.confirmPassword) {
-      setError('Fjalëkalimet nuk përputhen');
+      setError('Passwords do not match');
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('Fjalëkalimi duhet të jetë të paktën 6 karaktere');
+      setError('Password must be at least 6 characters long');
       return;
     }
 
@@ -49,10 +49,10 @@ const Register: React.FC = () => {
         email: formData.email,
         password: formData.password,
       });
-      // Pas regjistrimit të suksesshëm, navigo në login
-      navigate('/login', { state: { message: 'Regjistrimi u krye me sukses! Ju lutem kyçuni.' } });
+      // After successful registration, navigate to login
+      navigate('/login', { state: { message: 'Registration successful! Please login.' } });
     } catch (err: any) {
-      setError(err.message || 'Regjistrimi dështoi. Ju lutem provoni përsëri.');
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -61,11 +61,11 @@ const Register: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>Regjistrohu në LoungeBar</h2>
+        <h2>Register to LoungeBar</h2>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="firstName">Emri</label>
+            <label htmlFor="firstName">First Name</label>
             <input
               type="text"
               id="firstName"
@@ -73,11 +73,11 @@ const Register: React.FC = () => {
               value={formData.firstName}
               onChange={handleChange}
               required
-              placeholder="shkruaj emrin tënd"
+              placeholder="Enter your first name"
             />
           </div>
           <div className="form-group">
-            <label htmlFor="lastName">Mbiemri</label>
+            <label htmlFor="lastName">Last Name</label>
             <input
               type="text"
               id="lastName"
@@ -85,11 +85,11 @@ const Register: React.FC = () => {
               value={formData.lastName}
               onChange={handleChange}
               required
-              placeholder="shkruaj mbiemrin tënd"
+              placeholder="Enter your last name"
             />
           </div>
           <div className="form-group">
-            <label htmlFor="dateOfBirth">Data e lindjes</label>
+            <label htmlFor="dateOfBirth">Date of Birth</label>
             <input
               type="date"
               id="dateOfBirth"
@@ -108,11 +108,11 @@ const Register: React.FC = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="shkruaj email-in tënd"
+              placeholder="Enter your email"
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Fjalëkalimi</label>
+            <label htmlFor="password">Password</label>
             <input
               type="password"
               id="password"
@@ -120,12 +120,12 @@ const Register: React.FC = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder="minimum 6 karaktere"
+              placeholder="minimum 6 characters"
               minLength={6}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="confirmPassword">Konfirmo fjalëkalimin</label>
+            <label htmlFor="confirmPassword">Confirm Password</label>
             <input
               type="password"
               id="confirmPassword"
@@ -133,15 +133,15 @@ const Register: React.FC = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              placeholder="përsërit fjalëkalimin"
+              placeholder="Repeat password"
             />
           </div>
           <button type="submit" disabled={loading} className="submit-button">
-            {loading ? 'Duke u regjistruar...' : 'Regjistrohu'}
+            {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
         <p className="auth-link">
-          Tashmë ke llogari? <Link to="/login">Kyçu këtu</Link>
+          Already have an account? <Link to="/login">Login here</Link>
         </p>
       </div>
     </div>

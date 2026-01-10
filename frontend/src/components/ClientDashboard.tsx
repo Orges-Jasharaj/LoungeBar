@@ -15,7 +15,7 @@ const ClientDashboard: React.FC = () => {
     const loadOrders = async () => {
       const path = location.pathname;
       
-      // Extract session GUID nga URL
+      // Extract session GUID from URL
       // Format: /{guid}
       const match = path.match(/^\/([a-f0-9-]{36})$/i);
       
@@ -30,7 +30,7 @@ const ClientDashboard: React.FC = () => {
       try {
         setLoading(true);
         setError('');
-        // Përdor endpoint-in e ri që merr vetëm GUID
+        // Use the new endpoint that only takes GUID
         const response = await tableApi.getTableActiveOrdersBySessionGuid(guid);
         
         if (!response.success) {
@@ -39,7 +39,7 @@ const ClientDashboard: React.FC = () => {
 
         setOrders(response.data || []);
         
-        // Merr tableNumber nga porosia e parë (nëse ka)
+        // Get tableNumber from first order (if available)
         if (response.data && response.data.length > 0 && response.data[0].tableNumber) {
           setTableNum(response.data[0].tableNumber);
         }
@@ -78,11 +78,11 @@ const ClientDashboard: React.FC = () => {
       <div className="client-dashboard">
         <div className="client-header">
           <h1>LoungeBar</h1>
-          <p>Tavolina {tableNum || '...'}</p>
+          <p>Table {tableNum || '...'}</p>
         </div>
         <div className="loading-container">
           <div className="loading-spinner" />
-          <p>Duke u ngarkuar...</p>
+          <p>Loading...</p>
         </div>
       </div>
     );
@@ -93,13 +93,13 @@ const ClientDashboard: React.FC = () => {
       <div className="client-dashboard">
         <div className="client-header">
           <h1>LoungeBar</h1>
-          <p>Tavolina {tableNum || '...'}</p>
+          <p>Table {tableNum || '...'}</p>
         </div>
         <div className="error-container">
           <div className="error-icon">⚠️</div>
-          <h2>Gabim</h2>
+          <h2>Error</h2>
           <p>{error}</p>
-          <p className="error-subtitle">Ju lutem skanoni QR Code përsëri.</p>
+          <p className="error-subtitle">Please scan the QR Code again.</p>
         </div>
       </div>
     );
@@ -109,16 +109,16 @@ const ClientDashboard: React.FC = () => {
     <div className="client-dashboard">
       <div className="client-header">
         <h1>LoungeBar</h1>
-        <p className="table-info">Tavolina {tableNum}</p>
+        <p className="table-info">Table {tableNum}</p>
       </div>
 
       <div className="orders-section">
-        <h2>Porositë Aktive</h2>
+        <h2>Active Orders</h2>
         
         {orders.length === 0 ? (
           <div className="no-orders">
             <div className="no-orders-icon">🍽️</div>
-            <p>Nuk ka porosi aktive për këtë tavolinë.</p>
+            <p>No active orders for this table.</p>
           </div>
         ) : (
           <div className="orders-list">
@@ -134,7 +134,7 @@ const ClientDashboard: React.FC = () => {
                 </div>
                 
                 <div className="order-items">
-                  <h3>Artikuj:</h3>
+                  <h3>Items:</h3>
                   <ul>
                     {order.items.map((item, itemIndex) => (
                       <li key={itemIndex} className="order-item">
@@ -154,7 +154,7 @@ const ClientDashboard: React.FC = () => {
       </div>
 
       <div className="client-footer">
-        <p>Porositë përditësohen automatikisht</p>
+        <p>Orders update automatically</p>
       </div>
     </div>
   );

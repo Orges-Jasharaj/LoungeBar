@@ -20,12 +20,12 @@ const Login: React.FC = () => {
 
     try {
       await login({ email, password });
-      // Kontrollo rolin dhe redirecto në dashboard-in e duhur
+      // Check role and redirect to appropriate dashboard
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         const user = JSON.parse(storedUser);
-        // Nëse ka rol Employee, shko te waiter dashboard
-        // Kontrollo edhe për variacione të mundshme të emrit të rolit
+        // If user has Employee role, go to waiter dashboard
+        // Check for possible variations of role name
         const hasEmployeeRole = user.roles && Array.isArray(user.roles) && (
           user.roles.includes('Employee') || 
           user.roles.includes('EMPLOYEE') || 
@@ -40,7 +40,7 @@ const Login: React.FC = () => {
         navigate('/dashboard', { replace: true });
       }
     } catch (err: any) {
-      setError(err.message || 'Email ose fjalëkalimi i gabuar');
+      setError(err.message || 'Invalid email or password');
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ const Login: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>Kyçu në LoungeBar</h2>
+        <h2>Login to LoungeBar</h2>
         {successMessage && <div className="success-message">{successMessage}</div>}
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
@@ -61,26 +61,26 @@ const Login: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="shkruaj email-in tënd"
+              placeholder="Enter your email"
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Fjalëkalimi</label>
+            <label htmlFor="password">Password</label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="shkruaj fjalëkalimin"
+              placeholder="Enter your password"
             />
           </div>
           <button type="submit" disabled={loading} className="submit-button">
-            {loading ? 'Duke u kyçur...' : 'Kyçu'}
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
         <p className="auth-link">
-          Nuk ke llogari? <Link to="/register">Regjistrohu këtu</Link>
+          Don't have an account? <Link to="/register">Register here</Link>
         </p>
       </div>
     </div>

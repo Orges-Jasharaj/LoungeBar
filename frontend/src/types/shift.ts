@@ -20,6 +20,7 @@ export interface ShiftDto {
 export interface CreateShiftDto {
   userId: string;
   shiftType: ShiftType;
+  startTime?: string;
   notes?: string;
 }
 

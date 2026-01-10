@@ -360,6 +360,7 @@ const CreateShiftModal: React.FC<CreateShiftModalProps> = ({
   const [formData, setFormData] = useState<CreateShiftDto>({
     userId: '',
     shiftType: 'Morning',
+    startTime: new Date().toISOString().slice(0, 16), // Default to current date/time in format YYYY-MM-DDTHH:mm
     notes: '',
   });
   const [error, setError] = useState('');
@@ -387,6 +388,7 @@ const CreateShiftModal: React.FC<CreateShiftModalProps> = ({
       const payload = {
         ...formData,
         shiftType: shiftTypeMap[formData.shiftType] || 1,
+        startTime: formData.startTime ? new Date(formData.startTime).toISOString() : undefined,
       };
       const response = await shiftApi.createShift(payload as any);
       if (response.success) {
@@ -445,6 +447,21 @@ const CreateShiftModal: React.FC<CreateShiftModalProps> = ({
               <option value="Evening">Evening</option>
               <option value="Night">Night</option>
             </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="startTime">Start Time *</label>
+            <input
+              id="startTime"
+              name="startTime"
+              type="datetime-local"
+              value={formData.startTime || ''}
+              onChange={handleChange}
+              required
+            />
+            <small style={{ display: 'block', marginTop: '4px', color: '#666', fontSize: '12px' }}>
+              Select the time when the waiter should start working
+            </small>
           </div>
 
           <div className="form-group">

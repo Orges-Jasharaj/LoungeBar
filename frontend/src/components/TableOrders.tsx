@@ -35,10 +35,10 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
         setTotalCount(response.data.totalCount);
         setTotalPages(response.data.totalPages);
       } else {
-        setError(response.message || 'Dështoi ngarkimi i porosive');
+        setError(response.message || 'Failed to load orders');
       }
     } catch (err: any) {
-      setError(err.message || 'Gabim në ngarkimin e porosive');
+      setError(err.message || 'Error loading orders');
     } finally {
       setLoading(false);
     }
@@ -73,10 +73,10 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
       if (response.success) {
         await loadOrders();
       } else {
-        setError(response.message || 'Dështoi përditësimi i statusit');
+        setError(response.message || 'Failed to update status');
       }
     } catch (err: any) {
-      setError(err.message || 'Gabim në përditësimin e statusit');
+      setError(err.message || 'Error updating status');
     }
   };
 
@@ -114,14 +114,14 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
     <div className="table-orders">
       <div className="table-orders-header">
         <button onClick={onBack} className="back-btn">
-          ← Kthehu te Tavolinat
+          ← Back to Tables
         </button>
         <div>
-          <h1>Tavolina {table.number}</h1>
-          <p>Kapacitet: {table.capacity} persona</p>
+          <h1>Table {table.number}</h1>
+          <p>Capacity: {table.capacity} people</p>
         </div>
         <button onClick={handleCreateOrder} className="create-order-btn">
-          + Krijo Porosi
+          + Create Order
         </button>
       </div>
 
@@ -129,14 +129,14 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
         {error && <div className="error-banner">{error}</div>}
 
         {loading ? (
-          <div className="loading">Duke ngarkuar porositë...</div>
+          <div className="loading">Loading orders...</div>
         ) : (
           <>
             {orders.length === 0 ? (
               <div className="no-orders">
-                <p>Nuk ka porosi për këtë tavolinë</p>
+                <p>No orders for this table</p>
                 <button onClick={handleCreateOrder} className="create-first-order-btn">
-                  Krijo Porosi të Parë
+                  Create First Order
                 </button>
               </div>
             ) : (
@@ -146,9 +146,9 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
                   <div key={order.orderId} className="order-card">
                     <div className="order-header">
                       <div>
-                        <h3>Porosia #{order.orderId}</h3>
+                        <h3>Order #{order.orderId}</h3>
                         <p className="order-date">
-                          {new Date(order.orderDate).toLocaleString('sq-AL')}
+                          {new Date(order.orderDate).toLocaleString('en-US')}
                         </p>
                       </div>
                       <div
@@ -160,7 +160,7 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
                     </div>
 
                     <div className="order-items">
-                      <h4>Artikuj:</h4>
+                      <h4>Items:</h4>
                       {order.items.map((item, index) => (
                         <div key={index} className="order-item">
                           <span className="item-name">{item.drinkName}</span>
@@ -182,10 +182,10 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
                             className="status-btn"
                             style={{ backgroundColor: getStatusColor(status) }}
                           >
-                            {status === 'Preparing' && 'Fillo Gatimin'}
-                            {status === 'Served' && 'Shëno si Servuar'}
-                            {status === 'Canceled' && 'Anulo'}
-                            {status === 'Paid' && 'Shëno si Paguar'}
+                            {status === 'Preparing' && 'Start Preparing'}
+                            {status === 'Served' && 'Mark as Served'}
+                            {status === 'Canceled' && 'Cancel'}
+                            {status === 'Paid' && 'Mark as Paid'}
                           </button>
                         ))}
                       </div>
@@ -200,17 +200,17 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
                       disabled={page === 1}
                       className="pagination-btn"
                     >
-                      ← Paraardhëse
+                      ← Previous
                     </button>
                     <span className="pagination-info">
-                      Faqja {page} nga {totalPages} (Total: {totalCount} porosi)
+                      Page {page} of {totalPages} (Total: {totalCount} orders)
                     </span>
                     <button
                       onClick={handleNextPage}
                       disabled={page === totalPages}
                       className="pagination-btn"
                     >
-                      Tjetra →
+                      Next →
                     </button>
                   </div>
                 )}

@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { tableApi } from '../services/api';
 
 /**
- * Komponent që merr table-{number} nga URL, krijon session dhe ridrejton në /{guid}/table-{number}
+ * Component that gets table-{number} from URL, creates session and redirects to /{guid}/table-{number}
  */
 const TableQRRedirect: React.FC = () => {
   const { tableNumber: tableNumberParam } = useParams<{ tableNumber: string }>();
@@ -34,7 +34,7 @@ const TableQRRedirect: React.FC = () => {
         return;
       }
 
-      // tableNumber nga useParams është vetëm numri (p.sh. "1"), jo "table-1"
+      // tableNumber from useParams is just the number (e.g. "1"), not "table-1"
       const num = parseInt(tableNumber, 10);
       if (isNaN(num) || num <= 0) {
         setError(`Invalid table number: ${tableNumber}`);
@@ -43,7 +43,7 @@ const TableQRRedirect: React.FC = () => {
 
       try {
         console.log('Creating session for table:', num);
-        // Krijo session për tavolinë
+        // Create session for table
         const response = await tableApi.createTableSession(num);
         console.log('Session response:', response);
         
@@ -55,7 +55,7 @@ const TableQRRedirect: React.FC = () => {
         console.log('Session GUID:', sessionGuid);
         console.log('Redirecting to:', `/${sessionGuid}`);
         
-        // Ridrejto në /{guid} (vetëm GUID, pa table-{number})
+        // Redirect to /{guid} (just GUID, without table-{number})
         navigate(`/${sessionGuid}`, { replace: true });
       } catch (err: any) {
         console.error('Error creating session:', err);
@@ -80,10 +80,10 @@ const TableQRRedirect: React.FC = () => {
         textAlign: 'center'
       }}>
         <div style={{ fontSize: '4rem', marginBottom: '20px' }}>⚠️</div>
-        <h2>Gabim</h2>
-        <p>{error}</p>
-        <p style={{ marginTop: '20px', opacity: 0.8, fontSize: '0.9rem' }}>
-          Ju lutem skanoni QR Code përsëri.
+        <h2>Error</h2>
+          <p>{error}</p>
+          <p style={{ marginTop: '20px', opacity: 0.8, fontSize: '0.9rem' }}>
+          Please scan the QR Code again.
         </p>
       </div>
     );
@@ -109,9 +109,9 @@ const TableQRRedirect: React.FC = () => {
         animation: 'spin 1s linear infinite',
         marginBottom: '20px'
       }} />
-      <p>Duke krijuar sesion...</p>
+      <p>Creating session...</p>
       <p style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '10px' }}>
-        Tavolina: {tableNumber || 'N/A'}
+        Table: {tableNumber || 'N/A'}
       </p>
       <style>{`
         @keyframes spin {
