@@ -3,10 +3,12 @@ import { useAuth } from '../context/AuthContext';
 import { tableApi } from '../services/api';
 import type { TableDto } from '../types/table';
 import TableOrders from './TableOrders';
+import Chat from './Chat';
 import './WaiterDashboard.css';
 
 const WaiterDashboard: React.FC = () => {
   const { user, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState<'tables' | 'chat'>('tables');
   const [tables, setTables] = useState<TableDto[]>([]);
   const [selectedTable, setSelectedTable] = useState<TableDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,7 +43,8 @@ const WaiterDashboard: React.FC = () => {
     setSelectedTable(null);
   };
 
-  if (selectedTable) {
+  // Nëse ka table të zgjedhur, shfaq TableOrders (vetëm për tab-in tables)
+  if (selectedTable && activeTab === 'tables') {
     return (
       <TableOrders
         table={selectedTable}
@@ -64,44 +67,66 @@ const WaiterDashboard: React.FC = () => {
       </div>
 
       <div className="waiter-content">
-        {error && <div className="error-banner">{error}</div>}
-        
-        {loading ? (
-          <div className="loading">Loading tables...</div>
-        ) : (
-          <>
-            <div className="tables-header">
-              <h2>Tables</h2>
-              <button onClick={loadTables} className="refresh-btn">
-                Refresh
-              </button>
-            </div>
-            <div className="tables-grid">
-              {tables.length === 0 ? (
-                <div className="no-tables">No tables available</div>
+        <div className="tabs">
+          <button
+            className={`tab ${activeTab === 'tables' ? 'active' : ''}`}
+            onClick={() => setActiveTab('tables')}
+          >
+            Tables
+          </button>
+          <button
+            className={`tab ${activeTab === 'chat' ? 'active' : ''}`}
+            onClick={() => setActiveTab('chat')}
+          >
+            Chat
+          </button>
+        </div>
+
+        <div className="tab-content">
+          {activeTab === 'tables' && (
+            <>
+              {error && <div className="error-banner">{error}</div>}
+              
+              {loading ? (
+                <div className="loading">Loading tables...</div>
               ) : (
-                tables.map((table) => (
-                  <div
-                    key={table.id}
-                    className="table-card"
-                    onClick={() => handleTableClick(table)}
-                  >
-                    <div className="table-number">Table {table.number}</div>
-                    <div className="table-info">
-                      <div className="table-capacity">
-                        Capacity: {table.capacity} people
-                      </div>
-                      <div className="table-orders">
-                        Total orders: {table.totalOrders}
-                      </div>
-                    </div>
-                    <div className="table-click-hint">Click to view orders</div>
+                <>
+                  <div className="tables-header">
+                    <h2>Tables</h2>
+                    <button onClick={loadTables} className="refresh-btn">
+                      Refresh
+                    </button>
                   </div>
-                ))
+                  <div className="tables-grid">
+                    {tables.length === 0 ? (
+                      <div className="no-tables">No tables available</div>
+                    ) : (
+                      tables.map((table) => (
+                        <div
+                          key={table.id}
+                          className="table-card"
+                          onClick={() => handleTableClick(table)}
+                        >
+                          <div className="table-number">Table {table.number}</div>
+                          <div className="table-info">
+                            <div className="table-capacity">
+                              Capacity: {table.capacity} people
+                            </div>
+                            <div className="table-orders">
+                              Total orders: {table.totalOrders}
+                            </div>
+                          </div>
+                          <div className="table-click-hint">Click to view orders</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </>
               )}
-            </div>
-          </>
-        )}
+            </>
+          )}
+          {activeTab === 'chat' && <Chat />}
+        </div>
       </div>
     </div>
   );

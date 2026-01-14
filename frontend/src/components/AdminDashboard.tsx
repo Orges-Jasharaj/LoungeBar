@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ReservationManagement from './ReservationManagement';
+import Chat from './Chat';
 import './AdminDashboard.css';
 import { statisticsApi } from '../services/api';
 import type { StatisticsOverviewDto, TopDrinkDto } from '../types/statistics';
@@ -10,7 +11,7 @@ const AdminDashboard: React.FC = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
-    const [activeTab, setActiveTab] = useState<'reservations' | 'statistics'>('reservations');
+    const [activeTab, setActiveTab] = useState<'reservations' | 'statistics' | 'chat'>('reservations');
     
     const [loadingStats, setLoadingStats] = useState(false);
     const [statsError, setStatsError] = useState<string>('');
@@ -84,10 +85,17 @@ const AdminDashboard: React.FC = () => {
               >
                 Statistics
               </button>
+              <button
+                className={`tab ${activeTab === 'chat' ? 'active' : ''}`}
+                onClick={() => setActiveTab('chat')}
+              >
+                Chat
+              </button>
             </div>
             
             <div className="tab-content">
               {activeTab === 'reservations' && <ReservationManagement />}
+              {activeTab === 'chat' && <Chat />}
               {activeTab === 'statistics' && (
                 <div className="statistics-section">
                   <div className="statistics-header">

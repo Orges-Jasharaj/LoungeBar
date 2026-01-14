@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Project.Data;
 using Project.Data.Models;
 using Project.Dtos.System;
+using Project.Hubs;
 using Project.Middleware;
 using Project.Seed;
 using Project.Services.Implementation;
@@ -14,6 +15,7 @@ using Project.Services.Interface;
 using Serilog;
 using System.Security.Claims;
 using System.Text;
+using System.Linq;
 
 namespace Project
 {
@@ -100,6 +102,31 @@ namespace Project
                     RoleClaimType = ClaimTypes.Role,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
                 };
+                
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        
+                        if (!string.IsNullOrEmpty(accessToken) && 
+                            (path.StartsWithSegments("/chathub") || path.Value?.Contains("/negotiate") == true))
+                        {
+                            context.Token = accessToken;
+                        }
+                        else if (string.IsNullOrEmpty(context.Token))
+                        {
+                            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+                            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+                            {
+                                context.Token = authHeader.Substring("Bearer ".Length).Trim();
+                            }
+                        }
+                        
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             builder.Services.AddScoped<IUser, UserService>();
@@ -116,9 +143,10 @@ namespace Project
             builder.Services.AddScoped<IShift, ShiftService>();
             builder.Services.AddScoped<IStatistics, StatisticsService>();
 
+            builder.Services.AddSignalR();
+
             builder.Services.AddHttpContextAccessor();
 
-            // Add Memory Cache për session management (GUID + TableNumber)
             builder.Services.AddMemoryCache();
 
             builder.Services.AddAuthorization();
@@ -128,7 +156,6 @@ namespace Project
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
-            // Add CORS
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowReactApp", policy =>
@@ -155,10 +182,8 @@ namespace Project
                 });
             }
 
-            // CORS duhet të jetë para HTTPS redirection për të shmangur probleme me preflight requests
             app.UseCors("AllowReactApp");
 
-            // Në development, mos bëj HTTPS redirection për të shmangur probleme me CORS preflight
             if (!app.Environment.IsDevelopment())
             {
                 app.UseHttpsRedirection();
@@ -191,6 +216,11 @@ namespace Project
                             }
                         })
                 }
+            });
+
+            app.MapHub<ChatHub>("/chathub", options =>
+            {
+
             });
 
             app.Run();
