@@ -111,7 +111,9 @@ namespace Project
                         var path = context.HttpContext.Request.Path;
                         
                         if (!string.IsNullOrEmpty(accessToken) && 
-                            (path.StartsWithSegments("/chathub") || path.Value?.Contains("/negotiate") == true))
+                            (path.StartsWithSegments("/chathub") || 
+                             path.StartsWithSegments("/orderhub") ||
+                             path.Value?.Contains("/negotiate") == true))
                         {
                             context.Token = accessToken;
                         }
@@ -219,6 +221,11 @@ namespace Project
             });
 
             app.MapHub<ChatHub>("/chathub", options =>
+            {
+
+            });
+
+            app.MapHub<OrderHub>("/orderhub", options =>
             {
 
             });

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { orderApi } from '../services/api';
+import { signalRService } from '../services/signalR';
 import type { TableDto } from '../types/table';
 import type { OrderResponseDto, OrderStatus } from '../types/order';
 import CreateOrderModal from './CreateOrderModal';
@@ -21,10 +22,6 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  useEffect(() => {
-    loadOrders();
-  }, [table.id, page]);
-
   const loadOrders = async () => {
     try {
       setLoading(true);
@@ -43,6 +40,85 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    void loadOrders();
+
+    // Setup SignalR connection for real-time updates
+    const setupSignalR = async () => {
+      try {
+        await signalRService.startOrderConnection();
+
+        // Listen for new orders for this table
+        const handleOrderCreated = (order: OrderResponseDto) => {
+          if (order.tableId === table.id) {
+            // If we're on page 1, reload to show the new order
+            if (page === 1) {
+              void loadOrders();
+            }
+            onOrderUpdated();
+          }
+        };
+
+        // Listen for order updates for this table
+        const handleOrderUpdated = (order: OrderResponseDto) => {
+          if (order.tableId === table.id) {
+            // Update the order in the list if it exists
+            setOrders(prevOrders => {
+              const index = prevOrders.findIndex(o => o.orderId === order.orderId);
+              if (index !== -1) {
+                const updated = [...prevOrders];
+                updated[index] = order;
+                return updated;
+              }
+              // If order not in current page, reload
+              void loadOrders();
+              return prevOrders;
+            });
+            onOrderUpdated();
+          }
+        };
+
+        // Listen for order status changes for this table
+        const handleOrderStatusChanged = (orderId: number, status: string, tableId: number) => {
+          if (tableId === table.id) {
+            // Update the order status in the list
+            setOrders(prevOrders => {
+              const index = prevOrders.findIndex(o => o.orderId === orderId);
+              if (index !== -1) {
+                const updated = [...prevOrders];
+                updated[index] = { ...updated[index], status };
+                return updated;
+              }
+              // If order not in current page, reload
+              void loadOrders();
+              return prevOrders;
+            });
+            onOrderUpdated();
+          }
+        };
+
+        signalRService.onOrderCreated(handleOrderCreated);
+        signalRService.onOrderUpdated(handleOrderUpdated);
+        signalRService.onOrderStatusChanged(handleOrderStatusChanged);
+
+        return () => {
+          signalRService.offOrderCreated(handleOrderCreated);
+          signalRService.offOrderUpdated(handleOrderUpdated);
+          signalRService.offOrderStatusChanged(handleOrderStatusChanged);
+        };
+      } catch (err) {
+        console.error('Failed to setup SignalR for orders:', err);
+        // Continue without SignalR
+      }
+    };
+
+    const cleanup = setupSignalR();
+
+    return () => {
+      void cleanup.then(cleanupFn => cleanupFn?.());
+    };
+  }, [table.id, page]);
 
   const handleCreateOrder = () => {
     setShowCreateModal(true);

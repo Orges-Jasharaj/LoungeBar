@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { tableApi } from '../services/api';
+import { signalRService } from '../services/signalR';
 import type { TableOrderSummaryDto } from '../types/table';
 import './ClientDashboard.css';
 
@@ -11,53 +12,96 @@ const ClientDashboard: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [tableNum, setTableNum] = useState<number | null>(null);
 
-  useEffect(() => {
-    const loadOrders = async () => {
-      const path = location.pathname;
+  const loadOrders = async (guid: string) => {
+    try {
+      setLoading(true);
+      setError('');
+      // Use the new endpoint that only takes GUID
+      const response = await tableApi.getTableActiveOrdersBySessionGuid(guid);
       
-      // Extract session GUID from URL
-      // Format: /{guid}
-      const match = path.match(/^\/([a-f0-9-]{36})$/i);
-      
-      if (!match || !match[1]) {
-        setError('Invalid URL parameters');
-        setLoading(false);
-        return;
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to load orders');
       }
 
-      const guid = match[1];
+      setOrders(response.data || []);
+      
+      // Get tableNumber from first order (if available)
+      if (response.data && response.data.length > 0 && response.data[0].tableNumber) {
+        setTableNum(response.data[0].tableNumber);
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Error loading orders');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    const path = location.pathname;
+    
+    // Extract session GUID from URL
+    // Format: /{guid}
+    const match = path.match(/^\/([a-f0-9-]{36})$/i);
+    
+    if (!match || !match[1]) {
+      setError('Invalid URL parameters');
+      setLoading(false);
+      return;
+    }
+
+    const guid = match[1];
+    void loadOrders(guid);
+
+    // Setup SignalR connection for real-time updates
+    const setupSignalR = async () => {
       try {
-        setLoading(true);
-        setError('');
-        // Use the new endpoint that only takes GUID
-        const response = await tableApi.getTableActiveOrdersBySessionGuid(guid);
-        
-        if (!response.success) {
-          throw new Error(response.message || 'Failed to load orders');
-        }
+        await signalRService.startOrderConnection();
 
-        setOrders(response.data || []);
-        
-        // Get tableNumber from first order (if available)
-        if (response.data && response.data.length > 0 && response.data[0].tableNumber) {
-          setTableNum(response.data[0].tableNumber);
-        }
-      } catch (err: any) {
-        setError(err?.message || 'Error loading orders');
-      } finally {
-        setLoading(false);
+        // Listen for order status changes
+        const handleOrderStatusChanged = (_orderId: number, _status: string, _tableId: number) => {
+          // Reload orders when status changes
+          void loadOrders(guid);
+        };
+
+        // Listen for new orders
+        const handleOrderCreated = () => {
+          // Reload orders when a new order is created
+          void loadOrders(guid);
+        };
+
+        // Listen for order updates
+        const handleOrderUpdated = () => {
+          // Reload orders when an order is updated
+          void loadOrders(guid);
+        };
+
+        signalRService.onOrderStatusChanged(handleOrderStatusChanged);
+        signalRService.onOrderCreated(handleOrderCreated);
+        signalRService.onOrderUpdated(handleOrderUpdated);
+
+        return () => {
+          signalRService.offOrderStatusChanged(handleOrderStatusChanged);
+          signalRService.offOrderCreated(handleOrderCreated);
+          signalRService.offOrderUpdated(handleOrderUpdated);
+        };
+      } catch (err) {
+        console.error('Failed to setup SignalR for orders:', err);
+        // Continue without SignalR - fallback to polling
       }
     };
 
-    void loadOrders();
+    const cleanup = setupSignalR();
 
-    // Refresh orders every 10 seconds
+    // Fallback: Refresh orders every 30 seconds (less frequent since we have SignalR)
     const interval = setInterval(() => {
-      void loadOrders();
-    }, 10000);
+      void loadOrders(guid);
+    }, 30000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      void cleanup.then(cleanupFn => cleanupFn?.());
+      void signalRService.stopOrderConnection();
+    };
   }, [location.pathname]);
 
   const formatCurrency = (amount: number) => {

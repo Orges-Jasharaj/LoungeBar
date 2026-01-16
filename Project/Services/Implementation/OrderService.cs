@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Project.Data;
 using Project.Data.Enums;
 using Project.Data.Models;
 using Project.Dtos.Requests;
 using Project.Dtos.Responses;
+using Project.Hubs;
 using Project.Services.Interface;
 
 namespace Project.Services.Implementation
@@ -13,15 +15,18 @@ namespace Project.Services.Implementation
         private readonly AppDbContext _context;
         private readonly ILogger<OrderService> _logger;
         private readonly CurrentUserService _currentUserService;
+        private readonly IHubContext<OrderHub, IOrderHub> _hubContext;
 
         public OrderService(
             AppDbContext context,
             ILogger<OrderService> logger,
-            CurrentUserService currentUserService)
+            CurrentUserService currentUserService,
+            IHubContext<OrderHub, IOrderHub> hubContext)
         {
             _context = context;
             _logger = logger;
             _currentUserService = currentUserService;
+            _hubContext = hubContext;
         }
 
         public async Task<ResponseDto<bool>> CreateOrder(CreateOrderRequestDto createOrderDto)
@@ -82,6 +87,26 @@ namespace Project.Services.Implementation
 
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
+
+            // Load related data for SignalR notification
+            await _context.Entry(order)
+                .Reference(o => o.Table)
+                .LoadAsync();
+            await _context.Entry(order)
+                .Reference(o => o.User)
+                .LoadAsync();
+            await _context.Entry(order)
+                .Collection(o => o.OrderItems)
+                .Query()
+                .Include(oi => oi.Drink)
+                .LoadAsync();
+
+            var orderDto = MapToOrderResponse(order);
+
+            // Send SignalR notification to all connected clients
+            await _hubContext.Clients.All.OrderCreated(orderDto);
+            // Also notify clients watching this specific table
+            await _hubContext.Clients.All.OrderStatusChanged(order.Id, order.Status.ToString(), order.TableId);
 
             _logger.LogInformation(
                 "Order {OrderId} created by {UserId} with total {Total}",
@@ -165,6 +190,25 @@ namespace Project.Services.Implementation
             order.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+
+            // Load related data for SignalR notification
+            await _context.Entry(order)
+                .Reference(o => o.Table)
+                .LoadAsync();
+            await _context.Entry(order)
+                .Reference(o => o.User)
+                .LoadAsync();
+            await _context.Entry(order)
+                .Collection(o => o.OrderItems)
+                .Query()
+                .Include(oi => oi.Drink)
+                .LoadAsync();
+
+            var orderDto = MapToOrderResponse(order);
+
+            // Send SignalR notification to all connected clients
+            await _hubContext.Clients.All.OrderUpdated(orderDto);
+            await _hubContext.Clients.All.OrderStatusChanged(order.Id, order.Status.ToString(), order.TableId);
 
             _logger.LogInformation(
                 "Order {OrderId} status updated to {Status} by {UserId}",
