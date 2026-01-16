@@ -7,13 +7,11 @@ using System.Security.Claims;
 
 namespace Project.Hubs
 {
-    // Heqim [Authorize] nga klasa për të lejuar negotiation endpoint-in
-    // Por kontrollojmë authentication dhe role në metodat individuale
+
     public class ChatHub : Hub<IChatHub>
     {
         public override async Task OnConnectedAsync()
         {
-            // Kontrollo authentication dhe role kur klienti lidhet
             if (Context.User?.Identity?.IsAuthenticated != true)
             {
                 Context.Abort();
@@ -25,7 +23,6 @@ namespace Project.Hubs
             var isAdmin = user.IsInRole(RoleTypes.Admin);
             var isEmployee = user.IsInRole(RoleTypes.Employee);
 
-            // Nëse nuk ka role të lejuar, abort connection
             if (!isSuperAdmin && !isAdmin && !isEmployee)
             {
                 Context.Abort();
@@ -37,13 +34,11 @@ namespace Project.Hubs
 
         public async Task SendMessage(string message)
         {
-            // Kontrollo authentication manualisht
             if (Context.User?.Identity?.IsAuthenticated != true)
             {
                 throw new UnauthorizedAccessException("Authentication required");
             }
 
-            // Kontrollo role - lejo vetëm SuperAdmin, Admin dhe Employee
             var user = Context.User;
             var isSuperAdmin = user.IsInRole(RoleTypes.SuperAdmin);
             var isAdmin = user.IsInRole(RoleTypes.Admin);

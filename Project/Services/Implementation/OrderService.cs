@@ -46,7 +46,6 @@ namespace Project.Services.Implementation
                 return ResponseDto<bool>.Failure($"Table with number {createOrderDto.TableNumber} not found.");
             }
 
-            // Gjej shift-in aktiv të kamarierit
             var activeShift = await _context.Shifts
                 .FirstOrDefaultAsync(s => s.UserId == userId && s.EndTime == null);
 
@@ -167,7 +166,6 @@ namespace Project.Services.Implementation
                 return ResponseDto<bool>.Failure("Order not found.");
             }
 
-            // Kontrollojmë nëse porosia i përket kamarierit aktual
             if (order.UserId != userId)
             {
                 return ResponseDto<bool>.Failure("You can only update your own orders.");
@@ -262,7 +260,6 @@ namespace Project.Services.Implementation
                 return ResponseDto<bool>.Failure("Order not found.");
             }
 
-            // Kontrollojmë nëse porosia i përket kamarierit aktual
             if (order.UserId != userId)
             {
                 return ResponseDto<bool>.Failure("You can only delete your own orders.");
@@ -451,11 +448,9 @@ namespace Project.Services.Implementation
         {
             var userId = _currentUserService.GetCurrentUserId();
 
-            // Validimi i parametrave
             if (page < 1) page = 1;
             if (pageSize < 1 || pageSize > 100) pageSize = 10;
 
-            // Verifikojmë nëse tavolina ekziston
             var table = await _context.Tables.FindAsync(tableId);
             if (table == null)
             {

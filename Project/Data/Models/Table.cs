@@ -1,11 +1,11 @@
-﻿namespace Project.Data.Models
+namespace Project.Data.Models
 {
     public class Table
     {
         public int Id { get; set; }
         public int Number { get; set; }
         public int Capacity { get; set; }
-        public byte[]? QRCodeImage { get; set; } // QR Code image për tavolinën
+        public byte[]? QRCodeImage { get; set; }
         public ICollection<Order> Orders { get; set; }
         public ICollection<Reservation> Reservations { get; set; }
         public string CreatedBy { get; set; }

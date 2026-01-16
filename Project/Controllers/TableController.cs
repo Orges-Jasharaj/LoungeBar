@@ -56,7 +56,6 @@ namespace Project.Controllers
             return Ok(await _tableService.GetTableActiveOrders(tableNumber));
         }
 
-        // Endpoint për të krijuar session kur klienti skanon QR code
         [HttpPost("session/{tableNumber}")]
         [AllowAnonymous]
         public async Task<IActionResult> CreateTableSession(int tableNumber)
@@ -64,7 +63,6 @@ namespace Project.Controllers
             return Ok(await _tableSessionService.CreateTableSession(tableNumber));
         }
 
-        // Endpoint për të marrë porositë aktive me session GUID
         [HttpGet("session/{sessionGuid}/table-{tableNumber}/active-orders")]
         [AllowAnonymous]
         public async Task<IActionResult> GetTableActiveOrdersBySession(Guid sessionGuid, int tableNumber)
@@ -72,7 +70,6 @@ namespace Project.Controllers
             return Ok(await _tableSessionService.GetTableActiveOrdersBySession(sessionGuid, tableNumber));
         }
 
-        // Endpoint për të marrë porositë aktive me vetëm session GUID (merr tableNumber nga cache)
         [HttpGet("session/{sessionGuid}/active-orders")]
         [AllowAnonymous]
         public async Task<IActionResult> GetTableActiveOrdersBySessionGuid(Guid sessionGuid)
@@ -101,7 +98,6 @@ namespace Project.Controllers
             return Ok(await _tableService.DeleteTable(tableId));
         }
 
-        // Endpoint për të gjeneruar QR Code për tavolinë
         [HttpPost("{tableId}/generate-qrcode")]
         [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin}")]
         public async Task<IActionResult> GenerateQRCodeForTable(int tableId, [FromQuery] string? baseUrl = null)
@@ -112,12 +108,10 @@ namespace Project.Controllers
                 return BadRequest(table);
             }
 
-            // Nëse baseUrl nuk jepet, QRCodeService do ta marrë nga configuration
             var result = await _qrCodeService.GenerateAndSaveQRCodeForTable(table.Data.Number, baseUrl);
             return Ok(result);
         }
 
-        // Endpoint për të marrë QR Code image për tavolinë
         [HttpGet("number/{tableNumber}/qrcode")]
         [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin}")]
         public async Task<IActionResult> GetQRCodeForTable(int tableNumber)
@@ -128,7 +122,6 @@ namespace Project.Controllers
                 return NotFound(table);
             }
 
-            // Nëse QR Code nuk ekziston, gjenero atë (do të përdorë baseUrl nga configuration)
             if (table.Data.QRCodeImage == null || table.Data.QRCodeImage.Length == 0)
             {
                 var generateResult = await _qrCodeService.GenerateAndSaveQRCodeForTable(tableNumber, null);

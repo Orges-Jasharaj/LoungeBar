@@ -45,20 +45,14 @@ namespace Project.Services.Implementation
                 return ResponseDto<byte[]>.Failure($"Table with number {tableNumber} not found.");
             }
 
-            // Përdor baseUrl nga parameter, ose nga configuration, ose default
             var baseUrlToUse = baseUrl 
                 ?? _configuration["FrontendBaseUrl"] 
                 ?? "http://localhost:3000";
 
-            // URL që do të jetë në QR code
-            // Format: {baseUrl}/table-{tableNumber}
-            // Kur klienti skanon, do të krijohet session dhe do të ridrejtohet në /{guid}/table-{tableNumber}
             var qrCodeData = $"{baseUrlToUse}/table-{tableNumber}";
             
-            // Gjenero QR Code
             var qrCodeBytes = GenerateQRCode(qrCodeData);
 
-            // Ruaj QR Code në database
             table.QRCodeImage = qrCodeBytes;
             table.UpdatedAt = DateTime.UtcNow;
             

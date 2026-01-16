@@ -1,4 +1,4 @@
-﻿using Hangfire;
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -181,16 +181,13 @@ namespace Project.Services.Implementation
                     return ResponseDto<bool>.Failure("User not found.");
                 }
 
-                // Merr role-t aktuale
                 var currentRoles = await _userManager.GetRolesAsync(user);
 
-                // Hiq të gjitha role-t aktuale
                 if (currentRoles.Any())
                 {
                     await _userManager.RemoveFromRolesAsync(user, currentRoles);
                 }
 
-                // Shto role-n e re
                 var result = await _userManager.AddToRoleAsync(user, newRole);
 
                 if (result.Succeeded)

@@ -92,6 +92,19 @@ export const tableApi = {
     );
     return response.data;
   },
+
+  generateQRCode: async (tableId: number, baseUrl?: string): Promise<ResponseDto<boolean>> => {
+    const params = baseUrl ? `?baseUrl=${encodeURIComponent(baseUrl)}` : '';
+    const response = await api.post<ResponseDto<boolean>>(`/table/${tableId}/generate-qrcode${params}`);
+    return response.data;
+  },
+
+  getQRCode: async (tableNumber: number): Promise<Blob> => {
+    const response = await api.get(`/table/number/${tableNumber}/qrcode`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
 };
 
 export const orderApi = {

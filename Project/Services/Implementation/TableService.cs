@@ -141,7 +141,6 @@ namespace Project.Services.Implementation
                 return ResponseDto<List<TableOrderSummaryDto>>.Failure("Table not found.");
             }
 
-            // Gjejmë të gjitha porositë aktive për këtë tavolinë
             var activeOrders = await _context.Orders
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Drink)
@@ -194,7 +193,6 @@ namespace Project.Services.Implementation
                 return ResponseDto<bool>.Failure("Table not found.");
             }
 
-            // Gjejmë të gjitha porositë aktive për këtë tavolinë
             var activeOrders = await _context.Orders
                 .Where(o => o.TableId == table.Id
                     && o.IsVisibleToCustomers == true
@@ -207,7 +205,6 @@ namespace Project.Services.Implementation
                 return ResponseDto<bool>.Failure("No active orders found for this table.");
             }
 
-            // Fshehim të gjitha porositë aktive
             foreach (var order in activeOrders)
             {
                 order.IsVisibleToCustomers = false;
