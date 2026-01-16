@@ -105,6 +105,21 @@ export const tableApi = {
     });
     return response.data;
   },
+
+  createTable: async (tableData: { number: number; capacity: number }): Promise<ResponseDto<boolean>> => {
+    const response = await api.post<ResponseDto<boolean>>('/table', tableData);
+    return response.data;
+  },
+
+  updateTable: async (tableId: number, tableData: { number: number; capacity: number }): Promise<ResponseDto<boolean>> => {
+    const response = await api.put<ResponseDto<boolean>>(`/table/${tableId}`, tableData);
+    return response.data;
+  },
+
+  deleteTable: async (tableId: number): Promise<ResponseDto<boolean>> => {
+    const response = await api.delete<ResponseDto<boolean>>(`/table/${tableId}`);
+    return response.data;
+  },
 };
 
 export const orderApi = {
