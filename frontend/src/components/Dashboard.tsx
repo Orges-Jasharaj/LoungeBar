@@ -1,11 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import ReservationForm from './ReservationForm';
+import MyReservations from './MyReservations';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'reservation' | 'myReservations'>('reservation');
 
   useEffect(() => {
     // Redirect based on role
@@ -89,9 +92,25 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       <div className="dashboard-content">
-        <p>This is the main page. Table orders will be displayed here after you scan the QR code.</p>
-        <p>Email: {user?.email}</p>
-        <p>Role: {user?.roles ? user.roles.join(', ') : 'N/A'}</p>
+        <div className="tabs">
+          <button
+            className={`tab ${activeTab === 'reservation' ? 'active' : ''}`}
+            onClick={() => setActiveTab('reservation')}
+          >
+            Make Reservation
+          </button>
+          <button
+            className={`tab ${activeTab === 'myReservations' ? 'active' : ''}`}
+            onClick={() => setActiveTab('myReservations')}
+          >
+            My Reservations
+          </button>
+        </div>
+
+        <div className="tab-content">
+          {activeTab === 'reservation' && <ReservationForm />}
+          {activeTab === 'myReservations' && <MyReservations />}
+        </div>
       </div>
     </div>
   );

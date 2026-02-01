@@ -11,6 +11,8 @@ const TableManagement: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedTable, setSelectedTable] = useState<TableDto | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     loadTables();
@@ -78,6 +80,20 @@ const TableManagement: React.FC = () => {
     return matchesSearch;
   });
 
+  const totalPages = Math.ceil(filteredTables.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentTables = filteredTables.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (loading) {
     return (
       <div className="table-management">
@@ -128,7 +144,7 @@ const TableManagement: React.FC = () => {
                 </td>
               </tr>
             ) : (
-              filteredTables.map((table) => (
+              currentTables.map((table) => (
                 <tr key={table.id}>
                   <td>{table.id}</td>
                   <td>Table {table.number}</td>
@@ -160,6 +176,28 @@ const TableManagement: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="pagination-btn"
+          >
+            Previous
+          </button>
+          <div className="pagination-info">
+            Page {currentPage} of {totalPages} ({filteredTables.length} tables)
+          </div>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="pagination-btn"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {showCreateModal && (
         <CreateTableModal

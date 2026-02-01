@@ -15,6 +15,8 @@ const ShiftManagement: React.FC = () => {
   const [filterUser, setFilterUser] = useState<string>('all');
   const [filterShiftType, setFilterShiftType] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     try {
@@ -180,6 +182,20 @@ const ShiftManagement: React.FC = () => {
     return matchesUser && matchesShiftType && matchesStatus;
   });
 
+  const totalPages = Math.ceil(filteredShifts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentShifts = filteredShifts.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterUser, filterShiftType, filterStatus]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (loading) {
     return (
       <div className="shift-management">
@@ -264,7 +280,7 @@ const ShiftManagement: React.FC = () => {
                 </td>
               </tr>
             ) : (
-              filteredShifts.map((shift, index) => {
+              currentShifts.map((shift, index) => {
                 const shiftTypeStr = getShiftTypeString(shift.shiftType) || 'Morning';
                 const userName = getUserName(shift);
                 const shiftTypeLabel = getShiftTypeLabel(shift.shiftType) || 'Unknown';
@@ -321,6 +337,28 @@ const ShiftManagement: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="pagination-btn"
+          >
+            Previous
+          </button>
+          <div className="pagination-info">
+            Page {currentPage} of {totalPages} ({filteredShifts.length} shifts)
+          </div>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="pagination-btn"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {showCreateModal && (
         <CreateShiftModal

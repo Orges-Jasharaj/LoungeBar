@@ -6,6 +6,7 @@ export interface UserDto {
   email: string;
   isActive: boolean;
   roles: string[];
+  createdAt: string;
 }
 
 export interface UpdateUserDto {

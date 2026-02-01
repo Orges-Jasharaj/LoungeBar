@@ -236,7 +236,8 @@ namespace Project.Services.Implementation
                         Email = user.Email,
                         DateOfBirth = user.DateOfBirth,
                         isActive = user.isActive,
-                        Roles = roles.ToList()
+                        Roles = roles.ToList(),
+                        CreatedAt = user.CreatedAt
                     });
                 }
 

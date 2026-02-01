@@ -14,6 +14,8 @@ const UserManagement: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
   const [filterRole, setFilterRole] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     loadUsers();
@@ -25,7 +27,12 @@ const UserManagement: React.FC = () => {
       setError('');
       const response = await userApi.getAllUsers();
       if (response.success && response.data) {
-        setUsers(response.data);
+        const sortedUsers = [...response.data].sort((a, b) => {
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          return dateB - dateA;
+        });
+        setUsers(sortedUsers);
       } else {
         setError(response.message || 'Failed to load users');
       }
@@ -122,7 +129,25 @@ const UserManagement: React.FC = () => {
       user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesRole && matchesSearch;
+  }).sort((a, b) => {
+    const dateA = new Date(a.createdAt || 0).getTime();
+    const dateB = new Date(b.createdAt || 0).getTime();
+    return dateB - dateA;
   });
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentUsers = filteredUsers.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterRole]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   if (loading) {
     return <div className="loading">Loading users...</div>;
@@ -185,7 +210,7 @@ const UserManagement: React.FC = () => {
                 </td>
               </tr>
             ) : (
-              filteredUsers.map((user) => (
+              currentUsers.map((user) => (
                 <tr key={user.id} className={!user.isActive ? 'inactive' : ''}>
                   <td>
                     {user.firstName} {user.lastName}
@@ -257,6 +282,28 @@ const UserManagement: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="pagination-btn"
+          >
+            Previous
+          </button>
+          <div className="pagination-info">
+            Page {currentPage} of {totalPages} ({filteredUsers.length} users)
+          </div>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="pagination-btn"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {showCreateModal && (
         <CreateUserModal

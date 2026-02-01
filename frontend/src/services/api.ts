@@ -303,6 +303,20 @@ export const paymentApi = {
 };
 
 export const reservationApi = {
+  createReservation: async (reservationData: {
+    tableNumber: number;
+    customerName: string;
+    customerPhone: string;
+    customerEmail?: string;
+    reservationDate: string;
+    reservationTime: string;
+    numberOfGuests: number;
+    notes?: string;
+  }): Promise<ResponseDto<boolean>> => {
+    const response = await api.post<ResponseDto<boolean>>('/reservation', reservationData);
+    return response.data;
+  },
+
   getAllReservations: async (): Promise<ResponseDto<ReservationDto[]>> => {
     const response = await api.get<ResponseDto<ReservationDto[]>>('/reservation');
     return response.data;
@@ -310,6 +324,11 @@ export const reservationApi = {
 
   getReservationById: async (reservationId: number): Promise<ResponseDto<ReservationDto>> => {
     const response = await api.get<ResponseDto<ReservationDto>>(`/reservation/${reservationId}`);
+    return response.data;
+  },
+
+  getReservationsByDate: async (date: string): Promise<ResponseDto<ReservationDto[]>> => {
+    const response = await api.get<ResponseDto<ReservationDto[]>>(`/reservation/date/${date}`);
     return response.data;
   },
 
@@ -329,6 +348,11 @@ export const reservationApi = {
     notes?: string;
   }): Promise<ResponseDto<boolean>> => {
     const response = await api.put<ResponseDto<boolean>>(`/reservation/${reservationId}`, updateData);
+    return response.data;
+  },
+
+  cancelReservation: async (reservationId: number): Promise<ResponseDto<boolean>> => {
+    const response = await api.put<ResponseDto<boolean>>(`/reservation/${reservationId}/cancel`);
     return response.data;
   },
 

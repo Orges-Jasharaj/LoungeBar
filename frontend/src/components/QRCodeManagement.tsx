@@ -9,6 +9,8 @@ const QRCodeManagement: React.FC = () => {
   const [error, setError] = useState('');
   const [generating, setGenerating] = useState<number | null>(null);
   const [baseUrl, setBaseUrl] = useState('http://localhost:3000');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     loadTables();
@@ -144,8 +146,16 @@ const QRCodeManagement: React.FC = () => {
 
       {error && <div className="error-banner">{error}</div>}
 
-      <div className="tables-grid">
-        {tables.map((table) => {
+      {(() => {
+        const totalPages = Math.ceil(tables.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const currentTables = tables.slice(startIndex, endIndex);
+
+        return (
+          <>
+            <div className="tables-grid">
+              {currentTables.map((table) => {
           const qrCodeUrl = getQRCodeImageUrl(table);
           const tableHasQRCode = hasQRCode(table);
           const isLoading = loadingQR[table.number];
@@ -189,7 +199,38 @@ const QRCodeManagement: React.FC = () => {
             </div>
           );
         })}
-      </div>
+            </div>
+
+            {totalPages > 1 && (
+              <div className="pagination">
+                <button
+                  onClick={() => {
+                    setCurrentPage(currentPage - 1);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  disabled={currentPage === 1}
+                  className="pagination-btn"
+                >
+                  Previous
+                </button>
+                <div className="pagination-info">
+                  Page {currentPage} of {totalPages} ({tables.length} tables)
+                </div>
+                <button
+                  onClick={() => {
+                    setCurrentPage(currentPage + 1);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  disabled={currentPage === totalPages}
+                  className="pagination-btn"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
+        );
+      })()}
     </div>
   );
 };

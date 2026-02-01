@@ -13,6 +13,8 @@ const ReservationManagement: React.FC = () => {
   const [selectedReservation, setSelectedReservation] = useState<ReservationDto | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     loadReservations();
@@ -148,6 +150,20 @@ const ReservationManagement: React.FC = () => {
     return matchesStatus && matchesTable && matchesSearch;
   });
 
+  const totalPages = Math.ceil(filteredReservations.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentReservations = filteredReservations.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus, filterTable]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (loading) {
     return (
       <div className="reservation-management">
@@ -234,7 +250,7 @@ const ReservationManagement: React.FC = () => {
                 </td>
               </tr>
             ) : (
-              filteredReservations.map((reservation) => (
+              currentReservations.map((reservation) => (
                 <tr key={reservation.id}>
                   <td>{reservation.id}</td>
                   <td>{reservation.customerName}</td>
@@ -298,6 +314,28 @@ const ReservationManagement: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="pagination-btn"
+          >
+            Previous
+          </button>
+          <div className="pagination-info">
+            Page {currentPage} of {totalPages} ({filteredReservations.length} reservations)
+          </div>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="pagination-btn"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {/* Details Modal */}
       {showDetailsModal && selectedReservation && (
