@@ -14,3 +14,13 @@ export interface DrinkDto {
   updatedAt?: string;
 }
 
+export interface CreateDrinkDto {
+  name: string;
+  price: number;
+  categoryId: number;
+  isAlcoholic: boolean;
+  alcoholPercentage?: number;
+  imageUrl?: string;
+  isAvailable: boolean;
+}
+

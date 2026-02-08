@@ -2,7 +2,8 @@ import axios from 'axios';
 import type { LoginDto, CreateUserDto, LoginResponseDto } from '../types/auth';
 import type { TableDto, TableOrderSummaryDto } from '../types/table';
 import type { CreateOrderRequestDto, OrderResponseDto, WaiterDailySalesDto } from '../types/order';
-import type { DrinkDto } from '../types/drink';
+import type { DrinkDto, CreateDrinkDto } from '../types/drink';
+import type { CategoryDto, CreateCategoryDto } from '../types/category';
 import type { ResponseDto, PagedResponseDto } from '../types/response';
 import type { UserDto, UpdateUserDto } from '../types/user';
 import type { ShiftDto, CreateShiftDto } from '../types/shift';
@@ -214,6 +215,58 @@ export const orderApi = {
 export const drinkApi = {
   getAllDrinks: async (): Promise<ResponseDto<DrinkDto[]>> => {
     const response = await api.get<ResponseDto<DrinkDto[]>>('/drink');
+    return response.data;
+  },
+
+  getDrinkById: async (drinkId: number): Promise<ResponseDto<DrinkDto>> => {
+    const response = await api.get<ResponseDto<DrinkDto>>(`/drink/${drinkId}`);
+    return response.data;
+  },
+
+  createDrink: async (createDrinkDto: CreateDrinkDto): Promise<ResponseDto<boolean>> => {
+    const response = await api.post<ResponseDto<boolean>>('/drink', createDrinkDto);
+    return response.data;
+  },
+
+  updateDrink: async (drinkId: number, updateDrinkDto: CreateDrinkDto): Promise<ResponseDto<boolean>> => {
+    const response = await api.put<ResponseDto<boolean>>(`/drink/${drinkId}`, updateDrinkDto);
+    return response.data;
+  },
+
+  deleteDrink: async (drinkId: number): Promise<ResponseDto<boolean>> => {
+    const response = await api.delete<ResponseDto<boolean>>(`/drink/${drinkId}`);
+    return response.data;
+  },
+};
+
+export const categoryApi = {
+  getAllCategories: async (): Promise<ResponseDto<CategoryDto[]>> => {
+    const response = await api.get<ResponseDto<CategoryDto[]>>('/category/all');
+    return response.data;
+  },
+
+  getCategoryById: async (categoryId: number): Promise<ResponseDto<CategoryDto>> => {
+    const response = await api.get<ResponseDto<CategoryDto>>(`/category/${categoryId}`);
+    return response.data;
+  },
+
+  getCategoryByName: async (categoryName: string): Promise<ResponseDto<CategoryDto>> => {
+    const response = await api.get<ResponseDto<CategoryDto>>(`/category/name/${categoryName}`);
+    return response.data;
+  },
+
+  createCategory: async (createCategoryDto: CreateCategoryDto): Promise<ResponseDto<boolean>> => {
+    const response = await api.post<ResponseDto<boolean>>('/category/create', createCategoryDto);
+    return response.data;
+  },
+
+  updateCategory: async (categoryId: number, updateCategoryDto: CreateCategoryDto): Promise<ResponseDto<boolean>> => {
+    const response = await api.put<ResponseDto<boolean>>(`/category/update/${categoryId}`, updateCategoryDto);
+    return response.data;
+  },
+
+  deleteCategory: async (categoryId: number): Promise<ResponseDto<boolean>> => {
+    const response = await api.delete<ResponseDto<boolean>>(`/category/delete/${categoryId}`);
     return response.data;
   },
 };
