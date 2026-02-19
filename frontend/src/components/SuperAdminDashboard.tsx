@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import UserManagement from './UserManagement';
 import ShiftManagement from './ShiftManagement';
 import DailyBargains from './DailyBargains';
@@ -67,6 +67,7 @@ const SuperAdminDashboard: React.FC = () => {
           <h1>SuperAdmin Dashboard</h1>
           <div className="user-info">
             <span>Welcome, {user?.displayName}!</span>
+            <Link to="/profile" className="profile-link">My Account</Link>
             <button onClick={handleLogout} className="logout-button">
               Logout
             </button>

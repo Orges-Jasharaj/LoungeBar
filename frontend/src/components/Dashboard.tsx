@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import ReservationForm from './ReservationForm';
 import MyReservations from './MyReservations';
 import './Dashboard.css';
@@ -86,6 +86,7 @@ const Dashboard: React.FC = () => {
         <h1>LoungeBar Dashboard</h1>
         <div className="user-info">
           <span>Welcome, {user?.displayName}!</span>
+          <Link to="/profile" className="profile-link">My Account</Link>
           <button onClick={handleLogout} className="logout-button">
             Logout
           </button>

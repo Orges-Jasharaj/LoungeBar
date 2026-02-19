@@ -9,6 +9,7 @@ import SuperAdminDashboard from './components/SuperAdminDashboard';
 import AdminDashboard from './components/AdminDashboard';
 import TableRouteHandler from './components/TableRouteHandler';
 import ProtectedRoute from './components/ProtectedRoute';
+import Profile from './components/Profile';
 import './App.css';
 
 const HomeRedirect: React.FC = () => {
@@ -92,6 +93,14 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             }
           />

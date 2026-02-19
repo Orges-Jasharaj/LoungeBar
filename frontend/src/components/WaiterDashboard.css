@@ -23,6 +23,25 @@
   opacity: 0.9;
 }
 
+.waiter-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.waiter-header-actions .profile-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+.waiter-header-actions .profile-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .logout-btn {
   padding: 10px 20px;
   background: rgba(255, 255, 255, 0.2);

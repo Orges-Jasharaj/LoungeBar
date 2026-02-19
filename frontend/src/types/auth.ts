@@ -26,3 +26,9 @@ export interface User {
   roles: string[];
 }
 
+export interface ChangePasswordDto {
+  oldPassword: string;
+  newPassword: string;
+  userId?: string;
+}
+

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { LoginDto, CreateUserDto, LoginResponseDto } from '../types/auth';
+import type { LoginDto, CreateUserDto, LoginResponseDto, ChangePasswordDto } from '../types/auth';
 import type { TableDto, TableOrderSummaryDto } from '../types/table';
 import type { CreateOrderRequestDto, OrderResponseDto, WaiterDailySalesDto } from '../types/order';
 import type { DrinkDto, CreateDrinkDto } from '../types/drink';
@@ -466,6 +466,16 @@ export const userApi = {
   reactivateUser: async (userId: string): Promise<ResponseDto<boolean>> => {
     const response = await api.put<ResponseDto<boolean>>(
       `/user/ReactivateUser/${userId}`
+    );
+    return response.data;
+  },
+
+  changePassword: async (
+    changePasswordDto: Omit<ChangePasswordDto, 'userId'>
+  ): Promise<ResponseDto<boolean>> => {
+    const response = await api.post<ResponseDto<boolean>>(
+      '/user/changepassword',
+      changePasswordDto
     );
     return response.data;
   },

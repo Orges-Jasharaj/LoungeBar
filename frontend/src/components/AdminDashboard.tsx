@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import ReservationManagement from './ReservationManagement';
 import Chat from './Chat';
 import TableManagement from './TableManagement';
@@ -66,6 +66,7 @@ const AdminDashboard: React.FC = () => {
           <h1>Admin Dashboard</h1>
           <div className="user-info">
             <span>Welcome, {user?.displayName}!</span>
+            <Link to="/profile" className="profile-link">My Account</Link>
             <button onClick={handleLogout} className="logout-button">
               Logout
             </button>

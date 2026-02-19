@@ -24,6 +24,19 @@
   gap: 20px;
 }
 
+.profile-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+.profile-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .logout-button {
   padding: 10px 20px;
   background: rgba(255, 255, 255, 0.2);

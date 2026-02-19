@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 import { tableApi } from '../services/api';
 import type { TableDto } from '../types/table';
 import TableOrders from './TableOrders';
@@ -61,9 +62,12 @@ const WaiterDashboard: React.FC = () => {
           <h1>Waiter Dashboard</h1>
           <p>Welcome, {user?.displayName}!</p>
         </div>
-        <button onClick={logout} className="logout-btn">
-          Logout
-        </button>
+        <div className="waiter-header-actions">
+          <Link to="/profile" className="profile-link">My Account</Link>
+          <button onClick={logout} className="logout-btn">
+            Logout
+          </button>
+        </div>
       </div>
 
       <div className="waiter-content">

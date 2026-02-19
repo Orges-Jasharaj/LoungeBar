@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Project.Data.Models;
@@ -58,7 +58,7 @@ namespace Project.Controllers
         }
 
         [HttpPost("changepassword")]
-        [Authorize(Roles = $"{RoleTypes.User},{RoleTypes.SuperAdmin},{RoleTypes.Admin}")]
+        [Authorize(Roles = $"{RoleTypes.User},{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.Employee}")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
         {
             var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
