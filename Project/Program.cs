@@ -16,6 +16,7 @@ using Serilog;
 using System.Security.Claims;
 using System.Text;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace Project
 {
@@ -135,7 +136,7 @@ namespace Project
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<CurrentUserService>();
             builder.Services.AddScoped<ICategory, CategoryService>();
-            builder.Services.AddScoped<IDrink, DrinkService>();
+            builder.Services.AddScoped<IMenuItem, MenuItemService>();
             builder.Services.AddScoped<IOrder, OrderService>();
             builder.Services.AddScoped<ITable, TableService>();
             builder.Services.AddScoped<ITableSessionService, TableSessionService>();
@@ -154,7 +155,11 @@ namespace Project
             builder.Services.AddAuthorization();
 
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(o =>
+                {
+                    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 

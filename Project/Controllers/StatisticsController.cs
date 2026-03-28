@@ -25,14 +25,14 @@ namespace Project.Controllers
             return Ok(await _statisticsService.GetOverview(from, to));
         }
 
-        [HttpGet("top-drinks")]
+        [HttpGet("top-menu-items")]
         [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin}")]
-        public async Task<IActionResult> GetTopDrinks(
+        public async Task<IActionResult> GetTopMenuItems(
             [FromQuery] int limit = 5,
             [FromQuery] DateTime? from = null,
             [FromQuery] DateTime? to = null)
         {
-            return Ok(await _statisticsService.GetTopDrinks(limit, from, to));
+            return Ok(await _statisticsService.GetTopMenuItems(limit, from, to));
         }
     }
 }

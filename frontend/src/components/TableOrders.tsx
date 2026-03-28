@@ -239,7 +239,7 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
                       <h4>Items:</h4>
                       {order.items.map((item, index) => (
                         <div key={index} className="order-item">
-                          <span className="item-name">{item.drinkName}</span>
+                          <span className="item-name">{item.menuItemName}</span>
                           <span className="item-quantity">x{item.quantity}</span>
                           <span className="item-price">{item.total.toFixed(2)} €</span>
                         </div>

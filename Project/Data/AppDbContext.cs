@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Project.Data.Models;
 
@@ -12,7 +12,7 @@ namespace Project.Data
         }
 
         public DbSet<Category> Categories { get; set; }
-        public DbSet<Drink> Drinks { get; set; }
+        public DbSet<MenuItem> MenuItems { get; set; }
         public DbSet<Table> Tables { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }

@@ -182,7 +182,7 @@ const ClientDashboard: React.FC = () => {
                   <ul>
                     {order.items.map((item, itemIndex) => (
                       <li key={itemIndex} className="order-item">
-                        <span className="item-name">{item.drinkName}</span>
+                        <span className="item-name">{item.menuItemName}</span>
                         <span className="item-quantity">x{item.quantity}</span>
                         <span className="item-price">
                           {formatCurrency(item.unitPrice * item.quantity)}

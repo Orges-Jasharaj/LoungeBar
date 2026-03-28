@@ -18,8 +18,8 @@ export interface TableOrderSummaryDto {
 }
 
 export interface OrderItemSummaryDto {
-  drinkId: number;
-  drinkName: string;
+  menuItemId: number;
+  menuItemName: string;
   quantity: number;
   unitPrice: number;
   total?: number;

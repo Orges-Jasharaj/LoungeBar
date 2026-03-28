@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { drinkApi, categoryApi } from '../services/api';
-import type { DrinkDto, CreateDrinkDto } from '../types/drink';
-import type { CategoryDto, CreateCategoryDto } from '../types/category';
+import { menuItemApi, categoryApi } from '../services/api';
+import type { MenuItemDto, CreateMenuItemDto, ItemType } from '../types/menuItem';
+import type { CategoryDto } from '../types/category';
 import './DrinksManagement.css';
 
 const DrinksManagement: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'drinks' | 'categories'>('drinks');
-    const [drinks, setDrinks] = useState<DrinkDto[]>([]);
+    const [activeTab, setActiveTab] = useState<'items' | 'categories'>('items');
+    const [items, setItems] = useState<MenuItemDto[]>([]);
     const [categories, setCategories] = useState<CategoryDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Modal states
-    const [showDrinkModal, setShowDrinkModal] = useState(false);
+    const [showItemModal, setShowItemModal] = useState(false);
     const [showCategoryModal, setShowCategoryModal] = useState(false);
-    const [editingDrink, setEditingDrink] = useState<DrinkDto | null>(null);
+    const [editingItem, setEditingItem] = useState<MenuItemDto | null>(null);
     const [editingCategory, setEditingCategory] = useState<CategoryDto | null>(null);
 
     useEffect(() => {
@@ -25,14 +24,14 @@ const DrinksManagement: React.FC = () => {
         setLoading(true);
         setError('');
         try {
-            if (activeTab === 'drinks') {
-                const [drinksRes, categoriesRes] = await Promise.all([
-                    drinkApi.getAllDrinks(),
+            if (activeTab === 'items') {
+                const [itemsRes, categoriesRes] = await Promise.all([
+                    menuItemApi.getAll(),
                     categoryApi.getAllCategories()
                 ]);
 
-                if (drinksRes.success && drinksRes.data) {
-                    setDrinks(drinksRes.data);
+                if (itemsRes.success && itemsRes.data) {
+                    setItems(itemsRes.data);
                 }
                 if (categoriesRes.success && categoriesRes.data) {
                     setCategories(categoriesRes.data);
@@ -50,13 +49,13 @@ const DrinksManagement: React.FC = () => {
         }
     };
 
-    const handleDeleteDrink = async (id: number) => {
-        if (!window.confirm('Are you sure you want to delete this drink?')) return;
+    const handleDeleteItem = async (id: number) => {
+        if (!window.confirm('Are you sure you want to delete this menu item?')) return;
         try {
-            await drinkApi.deleteDrink(id);
+            await menuItemApi.delete(id);
             loadData();
         } catch (err: any) {
-            setError(err.message || 'Error deleting drink');
+            setError(err.message || 'Error deleting item');
         }
     };
 
@@ -70,16 +69,21 @@ const DrinksManagement: React.FC = () => {
         }
     };
 
+    const formatType = (row: MenuItemDto) => {
+        if (row.itemType === 'Food') return 'Food';
+        return row.isAlcoholic ? `Drink (Alcoholic ${row.alcoholPercentage ?? 0}%)` : 'Drink (non-alcoholic)';
+    };
+
     return (
         <div className="drinks-management">
             <div className="management-header">
-                <h2>Drinks & Categories Management</h2>
+                <h2>Menu & categories</h2>
                 <div className="sub-tabs">
                     <button
-                        className={`sub-tab ${activeTab === 'drinks' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('drinks')}
+                        className={`sub-tab ${activeTab === 'items' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('items')}
                     >
-                        Drinks
+                        Menu items
                     </button>
                     <button
                         className={`sub-tab ${activeTab === 'categories' ? 'active' : ''}`}
@@ -92,15 +96,15 @@ const DrinksManagement: React.FC = () => {
 
             {error && <div className="error-banner">{error}</div>}
 
-            {activeTab === 'drinks' ? (
+            {activeTab === 'items' ? (
                 <div className="drinks-section">
                     <div className="section-actions">
                         <button className="create-btn" onClick={() => {
-                            setEditingDrink(null);
-                            setShowDrinkModal(true);
-                        }}>+ Add Drink</button>
+                            setEditingItem(null);
+                            setShowItemModal(true);
+                        }}>+ Add item</button>
                     </div>
-                    {loading ? <div className="loading">Loading drinks...</div> : (
+                    {loading ? <div className="loading">Loading menu...</div> : (
                         <table className="data-table">
                             <thead>
                                 <tr>
@@ -113,23 +117,23 @@ const DrinksManagement: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {drinks.map(drink => (
-                                    <tr key={drink.id}>
-                                        <td>{drink.name}</td>
-                                        <td>{drink.categoryName}</td>
-                                        <td>€ {drink.price.toFixed(2)}</td>
-                                        <td>{drink.isAlcoholic ? `Alcoholic (${drink.alcoholPercentage}%)` : 'Non-Alcoholic'}</td>
+                                {items.map((row) => (
+                                    <tr key={row.id}>
+                                        <td>{row.name}</td>
+                                        <td>{row.categoryName}</td>
+                                        <td>€ {row.price.toFixed(2)}</td>
+                                        <td>{formatType(row)}</td>
                                         <td>
-                                            <span className={`status-badge ${drink.isAvailable ? 'available' : 'unavailable'}`}>
-                                                {drink.isAvailable ? 'Available' : 'Unavailable'}
+                                            <span className={`status-badge ${row.isAvailable ? 'available' : 'unavailable'}`}>
+                                                {row.isAvailable ? 'Available' : 'Unavailable'}
                                             </span>
                                         </td>
                                         <td>
                                             <button className="edit-btn" onClick={() => {
-                                                setEditingDrink(drink);
-                                                setShowDrinkModal(true);
+                                                setEditingItem(row);
+                                                setShowItemModal(true);
                                             }}>Edit</button>
-                                            <button className="delete-btn" onClick={() => handleDeleteDrink(drink.id)}>Delete</button>
+                                            <button className="delete-btn" onClick={() => handleDeleteItem(row.id)}>Delete</button>
                                         </td>
                                     </tr>
                                 ))}
@@ -174,13 +178,13 @@ const DrinksManagement: React.FC = () => {
                 </div>
             )}
 
-            {showDrinkModal && (
-                <DrinkModal
-                    drink={editingDrink}
+            {showItemModal && (
+                <MenuItemModal
+                    item={editingItem}
                     categories={categories}
-                    onClose={() => setShowDrinkModal(false)}
+                    onClose={() => setShowItemModal(false)}
                     onSave={() => {
-                        setShowDrinkModal(false);
+                        setShowItemModal(false);
                         loadData();
                     }}
                 />
@@ -200,40 +204,46 @@ const DrinksManagement: React.FC = () => {
     );
 };
 
-const DrinkModal: React.FC<{
-    drink: DrinkDto | null;
+const MenuItemModal: React.FC<{
+    item: MenuItemDto | null;
     categories: CategoryDto[];
     onClose: () => void;
     onSave: () => void;
-}> = ({ drink, categories, onClose, onSave }) => {
-    const [formData, setFormData] = useState<CreateDrinkDto>({
-        name: drink?.name || '',
-        price: drink?.price || 0,
-        categoryId: drink?.categoryId || (categories[0]?.id || 0),
-        isAlcoholic: drink?.isAlcoholic || false,
-        alcoholPercentage: drink?.alcoholPercentage || 0,
-        imageUrl: drink?.imageUrl || '',
-        isAvailable: drink?.isAvailable ?? true
+}> = ({ item, categories, onClose, onSave }) => {
+    const [formData, setFormData] = useState<CreateMenuItemDto>({
+        name: item?.name || '',
+        price: item?.price || 0,
+        categoryId: item?.categoryId || (categories[0]?.id || 0),
+        itemType: (item?.itemType as ItemType) || 'Drink',
+        isAlcoholic: item?.itemType === 'Drink' ? (item?.isAlcoholic || false) : false,
+        alcoholPercentage: item?.alcoholPercentage || 0,
+        imageUrl: item?.imageUrl || '',
+        isAvailable: item?.isAvailable ?? true
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            if (drink) {
-                await drinkApi.updateDrink(drink.id, formData);
+            const payload: CreateMenuItemDto = {
+                ...formData,
+                isAlcoholic: formData.itemType === 'Drink' ? formData.isAlcoholic : false,
+                alcoholPercentage: formData.itemType === 'Drink' && formData.isAlcoholic ? formData.alcoholPercentage : undefined,
+            };
+            if (item) {
+                await menuItemApi.update(item.id, payload);
             } else {
-                await drinkApi.createDrink(formData);
+                await menuItemApi.create(payload);
             }
             onSave();
         } catch (err: any) {
-            alert(err.message || 'Error saving drink');
+            alert(err.message || 'Error saving item');
         }
     };
 
     return (
         <div className="modal-overlay">
             <div className="modal-content">
-                <h3>{drink ? 'Edit Drink' : 'New Drink'}</h3>
+                <h3>{item ? 'Edit menu item' : 'New menu item'}</h3>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label>Name</label>
@@ -257,33 +267,51 @@ const DrinkModal: React.FC<{
                         <label>Category</label>
                         <select
                             value={formData.categoryId}
-                            onChange={e => setFormData({ ...formData, categoryId: parseInt(e.target.value) })}
+                            onChange={e => setFormData({ ...formData, categoryId: parseInt(e.target.value, 10) })}
                         >
                             {categories.map(c => (
                                 <option key={c.id} value={c.id}>{c.name}</option>
                             ))}
                         </select>
                     </div>
-                    <div className="form-group checkbox-group">
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={formData.isAlcoholic}
-                                onChange={e => setFormData({ ...formData, isAlcoholic: e.target.checked })}
-                            />
-                            Is Alcoholic
-                        </label>
+                    <div className="form-group">
+                        <label>Item type</label>
+                        <select
+                            value={formData.itemType}
+                            onChange={e => setFormData({
+                                ...formData,
+                                itemType: e.target.value as ItemType,
+                                isAlcoholic: e.target.value === 'Food' ? false : formData.isAlcoholic,
+                            })}
+                        >
+                            <option value="Drink">Drink</option>
+                            <option value="Food">Food</option>
+                        </select>
                     </div>
-                    {formData.isAlcoholic && (
-                        <div className="form-group">
-                            <label>Alcohol Percentage (%)</label>
-                            <input
-                                type="number"
-                                step="0.1"
-                                value={formData.alcoholPercentage || 0}
-                                onChange={e => setFormData({ ...formData, alcoholPercentage: parseFloat(e.target.value) })}
-                            />
-                        </div>
+                    {formData.itemType === 'Drink' && (
+                        <>
+                            <div className="form-group checkbox-group">
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.isAlcoholic}
+                                        onChange={e => setFormData({ ...formData, isAlcoholic: e.target.checked })}
+                                    />
+                                    Is alcoholic
+                                </label>
+                            </div>
+                            {formData.isAlcoholic && (
+                                <div className="form-group">
+                                    <label>Alcohol %</label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        value={formData.alcoholPercentage || 0}
+                                        onChange={e => setFormData({ ...formData, alcoholPercentage: parseFloat(e.target.value) })}
+                                    />
+                                </div>
+                            )}
+                        </>
                     )}
                     <div className="form-group checkbox-group">
                         <label>

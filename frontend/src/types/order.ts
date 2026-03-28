@@ -1,5 +1,5 @@
 export interface CreateOrderItemRequestDto {
-  drinkId: number;
+  menuItemId: number;
   quantity: number;
 }
 
@@ -9,8 +9,8 @@ export interface CreateOrderRequestDto {
 }
 
 export interface OrderItemResponseDto {
-  drinkId: number;
-  drinkName: string;
+  menuItemId: number;
+  menuItemName: string;
   quantity: number;
   unitPrice: number;
   total: number;

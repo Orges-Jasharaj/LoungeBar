@@ -118,13 +118,13 @@ namespace Project.Services.Implementation
             }
         }
 
-        public async Task<ResponseDto<List<TopDrinkDto>>> GetTopDrinks(int limit = 5, DateTime? from = null, DateTime? to = null)
+        public async Task<ResponseDto<List<TopMenuItemDto>>> GetTopMenuItems(int limit = 5, DateTime? from = null, DateTime? to = null)
         {
             try
             {
                 var query = _context.OrderItems
                     .Include(oi => oi.Order)
-                    .Include(oi => oi.Drink)
+                    .Include(oi => oi.MenuItem)
                     .AsQueryable();
 
                 if (from.HasValue)
@@ -137,12 +137,12 @@ namespace Project.Services.Implementation
                     query = query.Where(oi => oi.Order.CreatedAt <= to.Value);
                 }
 
-                var topDrinks = await query
-                    .GroupBy(oi => new { oi.DrinkId, oi.Drink.Name })
-                    .Select(g => new TopDrinkDto
+                var topItems = await query
+                    .GroupBy(oi => new { oi.MenuItemId, oi.MenuItem.Name })
+                    .Select(g => new TopMenuItemDto
                     {
-                        DrinkId = g.Key.DrinkId,
-                        DrinkName = g.Key.Name,
+                        MenuItemId = g.Key.MenuItemId,
+                        MenuItemName = g.Key.Name,
                         Quantity = g.Sum(oi => oi.Quantity)
                     })
                     .OrderByDescending(d => d.Quantity)
@@ -150,21 +150,21 @@ namespace Project.Services.Implementation
                     .ToListAsync();
 
                 _logger.LogInformation(
-                    "Top {Limit} drinks retrieved. From: {From}, To: {To}",
+                    "Top {Limit} menu items retrieved. From: {From}, To: {To}",
                     limit,
                     from,
                     to
                 );
 
-                return ResponseDto<List<TopDrinkDto>>.SuccessResponse(
-                    topDrinks,
-                    "Top drinks retrieved successfully."
+                return ResponseDto<List<TopMenuItemDto>>.SuccessResponse(
+                    topItems,
+                    "Top menu items retrieved successfully."
                 );
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving top drinks");
-                return ResponseDto<List<TopDrinkDto>>.Failure("Error retrieving top drinks.");
+                _logger.LogError(ex, "Error retrieving top menu items");
+                return ResponseDto<List<TopMenuItemDto>>.Failure("Error retrieving top menu items.");
             }
         }
     }

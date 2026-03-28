@@ -1,9 +1,12 @@
-export interface DrinkDto {
+export type ItemType = 'Drink' | 'Food';
+
+export interface MenuItemDto {
   id: number;
   name: string;
   price: number;
   categoryId: number;
   categoryName: string;
+  itemType: ItemType;
   isAlcoholic: boolean;
   alcoholPercentage?: number;
   imageUrl?: string;
@@ -14,13 +17,13 @@ export interface DrinkDto {
   updatedAt?: string;
 }
 
-export interface CreateDrinkDto {
+export interface CreateMenuItemDto {
   name: string;
   price: number;
   categoryId: number;
+  itemType: ItemType;
   isAlcoholic: boolean;
   alcoholPercentage?: number;
   imageUrl?: string;
   isAvailable: boolean;
 }
-

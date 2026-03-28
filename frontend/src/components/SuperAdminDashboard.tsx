@@ -8,7 +8,7 @@ import Chat from './Chat';
 import QRCodeManagement from './QRCodeManagement';
 import './SuperAdminDashboard.css';
 import { statisticsApi } from '../services/api';
-import type { StatisticsOverviewDto, TopDrinkDto } from '../types/statistics';
+import type { StatisticsOverviewDto, TopMenuItemDto } from '../types/statistics';
 
 const SuperAdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -19,7 +19,7 @@ const SuperAdminDashboard: React.FC = () => {
   const [statsError, setStatsError] = useState<string>('');
   const [statsLoaded, setStatsLoaded] = useState<boolean>(false);
   const [overview, setOverview] = useState<StatisticsOverviewDto | null>(null);
-  const [topDrinks, setTopDrinks] = useState<TopDrinkDto[]>([]);
+  const [topMenuItems, setTopMenuItems] = useState<TopMenuItemDto[]>([]);
 
   const handleLogout = () => {
     logout();
@@ -32,20 +32,20 @@ const SuperAdminDashboard: React.FC = () => {
       setLoadingStats(true);
       setStatsError('');
       try {
-        const [overviewRes, topDrinksRes] = await Promise.all([
+        const [overviewRes, topItemsRes] = await Promise.all([
           statisticsApi.getOverview(),
-          statisticsApi.getTopDrinks(5),
+          statisticsApi.getTopMenuItems(5),
         ]);
 
         if (!overviewRes.success || !overviewRes.data) {
           throw new Error(overviewRes.message || 'Failed to load statistics overview');
         }
-        if (!topDrinksRes.success || !topDrinksRes.data) {
-          throw new Error(topDrinksRes.message || 'Failed to load top drinks');
+        if (!topItemsRes.success || !topItemsRes.data) {
+          throw new Error(topItemsRes.message || 'Failed to load top menu items');
         }
 
         setOverview(overviewRes.data);
-        setTopDrinks(topDrinksRes.data);
+        setTopMenuItems(topItemsRes.data);
         setStatsLoaded(true);
       } catch (err: any) {
         setStatsError(err?.message || 'Error loading statistics');
@@ -188,17 +188,17 @@ const SuperAdminDashboard: React.FC = () => {
 
                     <div className="panel top-drinks">
                       <div className="panel-header">
-                        <h3>Top 5 Drinks</h3>
+                        <h3>Top 5 menu items</h3>
                         <span className="panel-subtitle">By quantity ordered</span>
                       </div>
-                      {topDrinks.length === 0 ? (
+                      {topMenuItems.length === 0 ? (
                         <p className="muted">No data available.</p>
                       ) : (
                         <ol className="top-drinks-list">
-                          {topDrinks.map((d) => (
-                            <li key={d.drinkId} className="top-drink-item">
+                          {topMenuItems.map((d) => (
+                            <li key={d.menuItemId} className="top-drink-item">
                               <span className="drink-rank" aria-hidden="true" />
-                              <span className="drink-name">{d.drinkName || `Drink #${d.drinkId}`}</span>
+                              <span className="drink-name">{d.menuItemName || `Item #${d.menuItemId}`}</span>
                               <span className="drink-qty">x{d.quantity}</span>
                             </li>
                           ))}

@@ -9,9 +9,9 @@ export interface StatisticsOverviewDto {
   activeShifts: number;
 }
 
-export interface TopDrinkDto {
-  drinkId: number;
-  drinkName: string;
+export interface TopMenuItemDto {
+  menuItemId: number;
+  menuItemName: string;
   quantity: number;
 }
 

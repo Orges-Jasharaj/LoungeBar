@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { LoginDto, CreateUserDto, LoginResponseDto, ChangePasswordDto } from '../types/auth';
 import type { TableDto, TableOrderSummaryDto } from '../types/table';
 import type { CreateOrderRequestDto, OrderResponseDto, WaiterDailySalesDto } from '../types/order';
-import type { DrinkDto, CreateDrinkDto } from '../types/drink';
+import type { MenuItemDto, CreateMenuItemDto } from '../types/menuItem';
 import type { CategoryDto, CreateCategoryDto } from '../types/category';
 import type { ResponseDto, PagedResponseDto } from '../types/response';
 import type { UserDto, UpdateUserDto } from '../types/user';
@@ -212,29 +212,29 @@ export const orderApi = {
   },
 };
 
-export const drinkApi = {
-  getAllDrinks: async (): Promise<ResponseDto<DrinkDto[]>> => {
-    const response = await api.get<ResponseDto<DrinkDto[]>>('/drink');
+export const menuItemApi = {
+  getAll: async (): Promise<ResponseDto<MenuItemDto[]>> => {
+    const response = await api.get<ResponseDto<MenuItemDto[]>>('/MenuItem');
     return response.data;
   },
 
-  getDrinkById: async (drinkId: number): Promise<ResponseDto<DrinkDto>> => {
-    const response = await api.get<ResponseDto<DrinkDto>>(`/drink/${drinkId}`);
+  getById: async (id: number): Promise<ResponseDto<MenuItemDto>> => {
+    const response = await api.get<ResponseDto<MenuItemDto>>(`/MenuItem/${id}`);
     return response.data;
   },
 
-  createDrink: async (createDrinkDto: CreateDrinkDto): Promise<ResponseDto<boolean>> => {
-    const response = await api.post<ResponseDto<boolean>>('/drink', createDrinkDto);
+  create: async (dto: CreateMenuItemDto): Promise<ResponseDto<boolean>> => {
+    const response = await api.post<ResponseDto<boolean>>('/MenuItem', dto);
     return response.data;
   },
 
-  updateDrink: async (drinkId: number, updateDrinkDto: CreateDrinkDto): Promise<ResponseDto<boolean>> => {
-    const response = await api.put<ResponseDto<boolean>>(`/drink/${drinkId}`, updateDrinkDto);
+  update: async (id: number, dto: CreateMenuItemDto): Promise<ResponseDto<boolean>> => {
+    const response = await api.put<ResponseDto<boolean>>(`/MenuItem/${id}`, dto);
     return response.data;
   },
 
-  deleteDrink: async (drinkId: number): Promise<ResponseDto<boolean>> => {
-    const response = await api.delete<ResponseDto<boolean>>(`/drink/${drinkId}`);
+  delete: async (id: number): Promise<ResponseDto<boolean>> => {
+    const response = await api.delete<ResponseDto<boolean>>(`/MenuItem/${id}`);
     return response.data;
   },
 };
@@ -495,17 +495,17 @@ export const statisticsApi = {
     return response.data;
   },
 
-  getTopDrinks: async (
+  getTopMenuItems: async (
     limit: number = 5,
     from?: string,
     to?: string
-  ): Promise<ResponseDto<import('../types/statistics').TopDrinkDto[]>> => {
+  ): Promise<ResponseDto<import('../types/statistics').TopMenuItemDto[]>> => {
     const params = new URLSearchParams();
     params.append('limit', limit.toString());
     if (from) params.append('from', from);
     if (to) params.append('to', to);
-    const response = await api.get<ResponseDto<import('../types/statistics').TopDrinkDto[]>>(
-      `/statistics/top-drinks?${params.toString()}`
+    const response = await api.get<ResponseDto<import('../types/statistics').TopMenuItemDto[]>>(
+      `/statistics/top-menu-items?${params.toString()}`
     );
     return response.data;
   },

@@ -35,7 +35,7 @@ namespace Project.Services.Implementation
 
             if (createOrderDto.Items == null || !createOrderDto.Items.Any())
             {
-                return ResponseDto<bool>.Failure("Order must contain at least one drink.");
+                return ResponseDto<bool>.Failure("Order must contain at least one item.");
             }
 
             var table = await _context.Tables
@@ -64,22 +64,22 @@ namespace Project.Services.Implementation
 
             foreach (var item in createOrderDto.Items)
             {
-                var drink = await _context.Drinks
-                    .FirstOrDefaultAsync(d => d.Id == item.DrinkId && d.IsAvailable);
+                var menuItem = await _context.MenuItems
+                    .FirstOrDefaultAsync(d => d.Id == item.MenuItemId && d.IsAvailable);
 
-                if (drink == null)
+                if (menuItem == null)
                 {
-                    return ResponseDto<bool>.Failure($"Drink with ID {item.DrinkId} not found or unavailable.");
+                    return ResponseDto<bool>.Failure($"Menu item with ID {item.MenuItemId} not found or unavailable.");
                 }
 
                 order.OrderItems.Add(new OrderItem
                 {
-                    DrinkId = drink.Id,
+                    MenuItemId = menuItem.Id,
                     Quantity = item.Quantity,
-                    UnitPrice = drink.Price
+                    UnitPrice = menuItem.Price
                 });
 
-                totalAmount += drink.Price * item.Quantity;
+                totalAmount += menuItem.Price * item.Quantity;
             }
 
             order.TotalAmount = totalAmount;
@@ -97,7 +97,7 @@ namespace Project.Services.Implementation
             await _context.Entry(order)
                 .Collection(o => o.OrderItems)
                 .Query()
-                .Include(oi => oi.Drink)
+                .Include(oi => oi.MenuItem)
                 .LoadAsync();
 
             var orderDto = MapToOrderResponse(order);
@@ -123,7 +123,7 @@ namespace Project.Services.Implementation
 
             var orders = await _context.Orders
                 .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Drink)
+                    .ThenInclude(oi => oi.MenuItem)
                 .Include(o => o.Table)
                 .Include(o => o.User)
                 .Where(o => o.UserId == userId)
@@ -142,7 +142,7 @@ namespace Project.Services.Implementation
 
             var order = await _context.Orders
                 .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Drink)
+                    .ThenInclude(oi => oi.MenuItem)
                 .Include(o => o.Table)
                 .Include(o => o.User)
                 .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
@@ -199,7 +199,7 @@ namespace Project.Services.Implementation
             await _context.Entry(order)
                 .Collection(o => o.OrderItems)
                 .Query()
-                .Include(oi => oi.Drink)
+                .Include(oi => oi.MenuItem)
                 .LoadAsync();
 
             var orderDto = MapToOrderResponse(order);
@@ -285,7 +285,7 @@ namespace Project.Services.Implementation
     .Include(o => o.User)
     .Include(o => o.Table)
     .Include(o => o.OrderItems)
-        .ThenInclude(oi => oi.Drink)
+        .ThenInclude(oi => oi.MenuItem)
     .OrderByDescending(o => o.CreatedAt)
     .Skip(0)
     .Take(10)
@@ -312,7 +312,7 @@ namespace Project.Services.Implementation
                 .Include(o => o.User)
                 .Include(o => o.Table)
                 .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Drink)
+                    .ThenInclude(oi => oi.MenuItem)
                 .AsQueryable();
 
             if (from.HasValue)
@@ -463,7 +463,7 @@ namespace Project.Services.Implementation
 
             var orders = await _context.Orders
                 .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Drink)
+                    .ThenInclude(oi => oi.MenuItem)
                 .Include(o => o.Table)
                 .Include(o => o.User)
                 .Where(o => o.TableId == tableId && o.UserId == userId)
@@ -524,7 +524,7 @@ namespace Project.Services.Implementation
         {
             var query = _context.Orders
                 .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Drink)
+                    .ThenInclude(oi => oi.MenuItem)
                 .Include(o => o.Table)
                 .Include(o => o.User)
                 .Where(o => o.UserId == waiterId)
@@ -659,8 +659,8 @@ namespace Project.Services.Implementation
                 UserName = order.User?.UserName,
                 Items = order.OrderItems.Select(oi => new OrderItemResponseDto
                 {
-                    DrinkId = oi.DrinkId,
-                    DrinkName = oi.Drink.Name,
+                    MenuItemId = oi.MenuItemId,
+                    MenuItemName = oi.MenuItem.Name,
                     Quantity = oi.Quantity,
                     UnitPrice = oi.UnitPrice
                 }).ToList()

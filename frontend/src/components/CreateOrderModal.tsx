@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { orderApi, drinkApi } from '../services/api';
-import type { DrinkDto } from '../types/drink';
+import { orderApi, menuItemApi } from '../services/api';
+import type { MenuItemDto } from '../types/menuItem';
 import type { CreateOrderItemRequestDto } from '../types/order';
 import './CreateOrderModal.css';
 
@@ -15,62 +15,62 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
   onClose,
   onOrderCreated,
 }) => {
-  const [drinks, setDrinks] = useState<DrinkDto[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItemDto[]>([]);
   const [orderItems, setOrderItems] = useState<CreateOrderItemRequestDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    loadDrinks();
+    loadMenuItems();
   }, []);
 
-  const loadDrinks = async () => {
+  const loadMenuItems = async () => {
     try {
       setLoading(true);
-      const response = await drinkApi.getAllDrinks();
+      const response = await menuItemApi.getAll();
       if (response.success && response.data) {
-        setDrinks(response.data.filter((drink) => drink.isAvailable));
+        setMenuItems(response.data.filter((row) => row.isAvailable));
       }
     } catch (err: any) {
-      setError(err.message || 'Error loading drinks');
+      setError(err.message || 'Error loading menu');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddItem = (drinkId: number) => {
-    const existingItem = orderItems.find((item) => item.drinkId === drinkId);
+  const handleAddItem = (menuItemId: number) => {
+    const existingItem = orderItems.find((item) => item.menuItemId === menuItemId);
     if (existingItem) {
       setOrderItems(
         orderItems.map((item) =>
-          item.drinkId === drinkId
+          item.menuItemId === menuItemId
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
       );
     } else {
-      setOrderItems([...orderItems, { drinkId, quantity: 1 }]);
+      setOrderItems([...orderItems, { menuItemId, quantity: 1 }]);
     }
   };
 
-  const handleRemoveItem = (drinkId: number) => {
-    const existingItem = orderItems.find((item) => item.drinkId === drinkId);
+  const handleRemoveItem = (menuItemId: number) => {
+    const existingItem = orderItems.find((item) => item.menuItemId === menuItemId);
     if (existingItem && existingItem.quantity > 1) {
       setOrderItems(
         orderItems.map((item) =>
-          item.drinkId === drinkId
+          item.menuItemId === menuItemId
             ? { ...item, quantity: item.quantity - 1 }
             : item
         )
       );
     } else {
-      setOrderItems(orderItems.filter((item) => item.drinkId !== drinkId));
+      setOrderItems(orderItems.filter((item) => item.menuItemId !== menuItemId));
     }
   };
 
-  const getItemQuantity = (drinkId: number) => {
-    const item = orderItems.find((item) => item.drinkId === drinkId);
+  const getItemQuantity = (menuItemId: number) => {
+    const item = orderItems.find((item) => item.menuItemId === menuItemId);
     return item ? item.quantity : 0;
   };
 
@@ -103,8 +103,8 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
 
   const getTotalPrice = () => {
     return orderItems.reduce((total, item) => {
-      const drink = drinks.find((d) => d.id === item.drinkId);
-      return total + (drink ? drink.price * item.quantity : 0);
+      const row = menuItems.find((d) => d.id === item.menuItemId);
+      return total + (row ? row.price * item.quantity : 0);
     }, 0);
   };
 
@@ -123,27 +123,27 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
             {loading ? (
-              <div className="loading">Loading drinks...</div>
+              <div className="loading">Loading menu...</div>
             ) : (
               <>
                 <div className="drinks-section">
-                  <h3>Available Drinks</h3>
+                  <h3>Menu</h3>
                   <div className="drinks-grid">
-                    {drinks.map((drink) => {
-                      const quantity = getItemQuantity(drink.id);
+                    {menuItems.map((row) => {
+                      const quantity = getItemQuantity(row.id);
                       return (
-                        <div key={drink.id} className="drink-card">
+                        <div key={row.id} className="drink-card">
                           <div className="drink-info">
-                            <div className="drink-name">{drink.name}</div>
-                            <div className="drink-category">{drink.categoryName}</div>
-                            <div className="drink-price">{drink.price.toFixed(2)} €</div>
+                            <div className="drink-name">{row.name}</div>
+                            <div className="drink-category">{row.categoryName}</div>
+                            <div className="drink-price">{row.price.toFixed(2)} €</div>
                           </div>
                           <div className="drink-actions">
                             {quantity > 0 && (
                               <>
                                 <button
                                   type="button"
-                                  onClick={() => handleRemoveItem(drink.id)}
+                                  onClick={() => handleRemoveItem(row.id)}
                                   className="quantity-btn"
                                 >
                                   −
@@ -153,7 +153,7 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                             )}
                             <button
                               type="button"
-                              onClick={() => handleAddItem(drink.id)}
+                              onClick={() => handleAddItem(row.id)}
                               className="add-btn"
                             >
                               {quantity > 0 ? '+' : 'Add'}
@@ -170,12 +170,12 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({
                     <h3>Order Summary</h3>
                     <div className="summary-items">
                       {orderItems.map((item) => {
-                        const drink = drinks.find((d) => d.id === item.drinkId);
-                        if (!drink) return null;
+                        const row = menuItems.find((d) => d.id === item.menuItemId);
+                        if (!row) return null;
                         return (
-                          <div key={item.drinkId} className="summary-item">
-                            <span>{drink.name} x{item.quantity}</span>
-                            <span>{(drink.price * item.quantity).toFixed(2)} €</span>
+                          <div key={item.menuItemId} className="summary-item">
+                            <span>{row.name} x{item.quantity}</span>
+                            <span>{(row.price * item.quantity).toFixed(2)} €</span>
                           </div>
                         );
                       })}

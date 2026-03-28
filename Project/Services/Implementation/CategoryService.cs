@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Project.Data;
 using Project.Data.Models;
 using Project.Dtos.Requests;
@@ -61,18 +61,34 @@ namespace Project.Services.Implementation
 
         public async Task<ResponseDto<List<CategoryDto>>> GetAllCategories()
         {
-            var categories = _context.Categories
+            var categories = await _context.Categories
                 .Select(c => new CategoryDto
                 {
                     Id = c.Id,
                     Name = c.Name,
-                    Drinks = c.Drinks,
+                    MenuItems = c.MenuItems!.Select(m => new MenuItemDto
+                    {
+                        Id = m.Id,
+                        Name = m.Name,
+                        Price = m.Price,
+                        CategoryId = m.CategoryId,
+                        CategoryName = c.Name,
+                        ItemType = m.ItemType,
+                        IsAlcoholic = m.IsAlcoholic,
+                        AlcoholPercentage = m.AlcoholPercentage,
+                        ImageUrl = m.ImageUrl,
+                        IsAvailable = m.IsAvailable,
+                        CreatedBy = m.CreatedBy,
+                        CreatedAt = m.CreatedAt,
+                        UpdatedBy = m.UpdatedBy,
+                        UpdatedAt = m.UpdatedAt
+                    }).ToList(),
                     CreatedAt = c.CreatedAt,
                     CreatedBy = c.CreatedBy,
                     UpdatedAt = c.UpdatedAt,
                     UpdatedBy = c.UpdatedBy
                 })
-                .ToList();
+                .ToListAsync();
             return ResponseDto<List<CategoryDto>>.SuccessResponse(categories, "Categories retrieved successfully.");
         }
 
@@ -84,11 +100,27 @@ namespace Project.Services.Implementation
                 {
                     Id = c.Id,
                     Name = c.Name,
-                    Drinks = c.Drinks,
+                    MenuItems = c.MenuItems!.Select(m => new MenuItemDto
+                    {
+                        Id = m.Id,
+                        Name = m.Name,
+                        Price = m.Price,
+                        CategoryId = m.CategoryId,
+                        CategoryName = c.Name,
+                        ItemType = m.ItemType,
+                        IsAlcoholic = m.IsAlcoholic,
+                        AlcoholPercentage = m.AlcoholPercentage,
+                        ImageUrl = m.ImageUrl,
+                        IsAvailable = m.IsAvailable,
+                        CreatedBy = m.CreatedBy,
+                        CreatedAt = m.CreatedAt,
+                        UpdatedBy = m.UpdatedBy,
+                        UpdatedAt = m.UpdatedAt
+                    }).ToList(),
                     CreatedAt = c.CreatedAt,
                     CreatedBy = c.CreatedBy,
                     UpdatedAt = c.UpdatedAt,
-                    UpdatedBy = c.UpdatedBy 
+                    UpdatedBy = c.UpdatedBy
 
                 })
                 .FirstOrDefaultAsync();
@@ -96,7 +128,7 @@ namespace Project.Services.Implementation
             {
                 return ResponseDto<CategoryDto>.Failure("Category not found.");
             }
-            
+
             return ResponseDto<CategoryDto>.SuccessResponse(category, "Category retrieved successfully.");
         }
 
@@ -108,7 +140,23 @@ namespace Project.Services.Implementation
                 {
                     Id = c.Id,
                     Name = c.Name,
-                    Drinks = c.Drinks,
+                    MenuItems = c.MenuItems!.Select(m => new MenuItemDto
+                    {
+                        Id = m.Id,
+                        Name = m.Name,
+                        Price = m.Price,
+                        CategoryId = m.CategoryId,
+                        CategoryName = c.Name,
+                        ItemType = m.ItemType,
+                        IsAlcoholic = m.IsAlcoholic,
+                        AlcoholPercentage = m.AlcoholPercentage,
+                        ImageUrl = m.ImageUrl,
+                        IsAvailable = m.IsAvailable,
+                        CreatedBy = m.CreatedBy,
+                        CreatedAt = m.CreatedAt,
+                        UpdatedBy = m.UpdatedBy,
+                        UpdatedAt = m.UpdatedAt
+                    }).ToList(),
                     CreatedAt = c.CreatedAt,
                     CreatedBy = c.CreatedBy,
                     UpdatedAt = c.UpdatedAt,

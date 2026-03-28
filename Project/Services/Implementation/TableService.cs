@@ -143,7 +143,7 @@ namespace Project.Services.Implementation
 
             var activeOrders = await _context.Orders
                 .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Drink)
+                    .ThenInclude(oi => oi.MenuItem)
                 .Include(o => o.Table)
                 .Where(o => o.TableId == table.Id 
                     && o.IsVisibleToCustomers == true
@@ -164,8 +164,8 @@ namespace Project.Services.Implementation
                 TableNumber = order.Table?.Number ?? tableNumber,
                 Items = order.OrderItems.Select(oi => new OrderItemResponseDto
                 {
-                    DrinkId = oi.DrinkId,
-                    DrinkName = oi.Drink.Name,
+                    MenuItemId = oi.MenuItemId,
+                    MenuItemName = oi.MenuItem.Name,
                     Quantity = oi.Quantity,
                     UnitPrice = oi.UnitPrice
                 }).ToList()
