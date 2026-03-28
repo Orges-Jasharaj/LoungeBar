@@ -14,10 +14,10 @@ namespace Project.Services.Implementation
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.A4);
-                    page.Margin(2, Unit.Centimetre);
+                    page.ContinuousSize(80, Unit.Millimetre);
+                    page.Margin(5, Unit.Millimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(11).FontFamily("Arial"));
+                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Arial"));
 
                     page.Header().Element(header => ComposeHeader(header, order));
                     page.Content().Element(content => ComposeContent(content, order));
@@ -30,32 +30,25 @@ namespace Project.Services.Implementation
 
         private void ComposeHeader(IContainer container, OrderResponseDto order)
         {
-            container.Row(row =>
+            container.Column(column =>
             {
-                row.RelativeItem().Column(column =>
+                column.Item().AlignCenter().Text("LoungeBar").FontSize(20).SemiBold().FontColor(Colors.Black);
+                column.Item().AlignCenter().Text("Address: Rruga Fadil Elshani, Suharek");
+                column.Item().AlignCenter().Text("Phone: +355 69 123 4567");
+                
+                column.Item().PaddingTop(10).Text($"Invoice #{order.OrderId}").FontSize(14).SemiBold();
+                column.Item().Text($"Date: {order.OrderDate:dd/MM/yyyy HH:mm}");
+                column.Item().Text($"Table: {order.TableNumber}");
+                if (!string.IsNullOrEmpty(order.UserName))
                 {
-                    column.Item().Text("LoungeBar").FontSize(24).SemiBold().FontColor(Colors.Blue.Darken2);
-                    column.Item().Text("Address: Rruga Fadil Elshani, Suharek");
-                    column.Item().Text("Email: info@loungebar.com");
-                    column.Item().Text("Phone: +355 69 123 4567");
-                });
-
-                row.ConstantItem(150).Column(column =>
-                {
-                    column.Item().Text($"Invoice #{order.OrderId}").FontSize(16).SemiBold();
-                    column.Item().Text($"Date: {order.OrderDate:dd/MM/yyyy HH:mm}");
-                    column.Item().Text($"Table: {order.TableNumber}");
-                    if (!string.IsNullOrEmpty(order.UserName))
-                    {
-                        column.Item().Text($"Waiter: {order.UserName}");
-                    }
-                });
+                    column.Item().Text($"Waiter: {order.UserName}");
+                }
             });
         }
 
         private void ComposeContent(IContainer container, OrderResponseDto order)
         {
-            container.PaddingVertical(1, Unit.Centimetre).Column(column =>
+            container.PaddingVertical(5, Unit.Millimetre).Column(column =>
             {
                 column.Item().Element(tableContainer => ComposeTable(tableContainer, order));
 
@@ -71,45 +64,36 @@ namespace Project.Services.Implementation
                 // step 1: define columns
                 table.ColumnsDefinition(columns =>
                 {
-                    columns.ConstantColumn(30);
-                    columns.RelativeColumn();
-                    columns.ConstantColumn(80);
-                    columns.ConstantColumn(80);
-                    columns.ConstantColumn(80);
+                    columns.ConstantColumn(20); // Qty
+                    columns.RelativeColumn();   // Item
+                    columns.ConstantColumn(50); // Total
                 });
 
                 // step 2: define header
                 table.Header(header =>
                 {
-                    header.Cell().Element(CellStyle).Text("#");
+                    header.Cell().Element(CellStyle).Text("Qty");
                     header.Cell().Element(CellStyle).Text("Item");
-                    header.Cell().Element(CellStyle).AlignRight().Text("Unit Price");
-                    header.Cell().Element(CellStyle).AlignCenter().Text("Quantity");
                     header.Cell().Element(CellStyle).AlignRight().Text("Total");
 
                     static IContainer CellStyle(IContainer container)
                     {
-                        return container.DefaultTextStyle(x => x.SemiBold()).PaddingVertical(5).BorderBottom(1).BorderColor(Colors.Black);
+                        return container.DefaultTextStyle(x => x.SemiBold()).PaddingVertical(2).BorderBottom(1).BorderColor(Colors.Black);
                     }
                 });
 
                 // step 3: define items
-                var index = 1;
                 foreach (var item in order.Items)
                 {
-                    table.Cell().Element(CellStyle).Text(index.ToString());
+                    table.Cell().Element(CellStyle).Text(item.Quantity.ToString());
                     table.Cell().Element(CellStyle).Text(item.MenuItemName);
-                    table.Cell().Element(CellStyle).AlignRight().Text($"{item.UnitPrice:C}");
-                    table.Cell().Element(CellStyle).AlignCenter().Text(item.Quantity.ToString());
                     
                     var total = item.UnitPrice * item.Quantity;
                     table.Cell().Element(CellStyle).AlignRight().Text($"{total:C}");
 
-                    index++;
-
                     static IContainer CellStyle(IContainer container)
                     {
-                        return container.BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5);
+                        return container.BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingVertical(2);
                     }
                 }
             });
@@ -117,13 +101,7 @@ namespace Project.Services.Implementation
 
         private void ComposeFooter(IContainer container)
         {
-            container.AlignCenter().Text(x =>
-            {
-                x.Span("Page ");
-                x.CurrentPageNumber();
-                x.Span(" out of ");
-                x.TotalPages();
-            });
+            container.PaddingTop(10).AlignCenter().Text("Thank you for your visit!").SemiBold();
         }
     }
 }
