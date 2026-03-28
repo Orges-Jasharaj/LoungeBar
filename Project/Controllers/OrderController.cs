@@ -13,10 +13,12 @@ namespace Project.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrder _orderService;
+        private readonly IPdfService _pdfService;
 
-        public OrderController(IOrder orderService)
+        public OrderController(IOrder orderService, IPdfService pdfService)
         {
             _orderService = orderService;
+            _pdfService = pdfService;
         }
 
         [HttpGet("GetMyOrders")]
@@ -92,6 +94,22 @@ namespace Project.Controllers
         public async Task<IActionResult> GetOrderById(int orderId)
         {
             return Ok(await _orderService.GetOrderById(orderId));
+        }
+
+        [HttpGet("{orderId}/invoice")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.Employee},{RoleTypes.User}")]
+        public async Task<IActionResult> GetOrderInvoice(int orderId)
+        {
+            var orderResponse = await _orderService.GetOrderById(orderId);
+            
+            if (!orderResponse.Success || orderResponse.Data == null)
+            {
+                return NotFound(new { message = orderResponse.Message ?? "Order not found." });
+            }
+
+            var pdfBytes = _pdfService.GenerateInvoicePdf(orderResponse.Data);
+            
+            return File(pdfBytes, "application/pdf", $"Invoice_{orderId}.pdf");
         }
 
         [HttpPost]

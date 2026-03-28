@@ -17,6 +17,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Linq;
 using System.Text.Json.Serialization;
+using QuestPDF.Infrastructure;
 
 namespace Project
 {
@@ -24,6 +25,7 @@ namespace Project
     {
         public static void Main(string[] args)
         {
+            QuestPDF.Settings.License = LicenseType.Community;
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -145,6 +147,7 @@ namespace Project
             builder.Services.AddScoped<IPayment, PaymentService>();
             builder.Services.AddScoped<IShift, ShiftService>();
             builder.Services.AddScoped<IStatistics, StatisticsService>();
+            builder.Services.AddScoped<IPdfService, PdfService>();
 
             builder.Services.AddSignalR();
 

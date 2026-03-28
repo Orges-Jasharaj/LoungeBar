@@ -156,6 +156,14 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
     }
   };
 
+  const handlePrintInvoice = async (orderId: number) => {
+    try {
+      await orderApi.printInvoice(orderId);
+    } catch (err: any) {
+      setError(err.message || 'Error generating invoice');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Pending':
@@ -264,6 +272,13 @@ const TableOrders: React.FC<TableOrdersProps> = ({ table, onBack, onOrderUpdated
                             {status === 'Paid' && 'Mark as Paid'}
                           </button>
                         ))}
+                        <button
+                          onClick={() => handlePrintInvoice(order.orderId)}
+                          className="status-btn print-btn"
+                          style={{ backgroundColor: '#607d8b' }}
+                        >
+                          Print
+                        </button>
                       </div>
                     </div>
                   </div>

@@ -219,6 +219,15 @@ export const orderApi = {
     );
     return response.data;
   },
+
+  printInvoice: async (orderId: number): Promise<void> => {
+    const response = await api.get(`/order/${orderId}/invoice`, {
+      responseType: 'blob'
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+    window.open(url, '_blank');
+    setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+  },
 };
 
 export const menuItemApi = {
