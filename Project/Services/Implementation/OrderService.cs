@@ -47,7 +47,9 @@ namespace Project.Services.Implementation
             }
 
             var activeShift = await _context.Shifts
-                .FirstOrDefaultAsync(s => s.UserId == userId && s.EndTime == null);
+                .Where(s => s.UserId == userId && s.EndTime == null)
+                .OrderBy(s => s.StartTime)
+                .FirstOrDefaultAsync();
 
             var order = new Order
             {
@@ -429,7 +431,9 @@ namespace Project.Services.Implementation
             var userId = _currentUserService.GetCurrentUserId();
 
             var activeShift = await _context.Shifts
-                .FirstOrDefaultAsync(s => s.UserId == userId && s.EndTime == null);
+                .Where(s => s.UserId == userId && s.EndTime == null)
+                .OrderBy(s => s.StartTime)
+                .FirstOrDefaultAsync();
 
             if (activeShift == null)
             {
@@ -505,7 +509,9 @@ namespace Project.Services.Implementation
         public async Task<ResponseDto<decimal>> GetTotalOrdersByWaiterId(string waiterId)
         {
             var activeShift = await _context.Shifts
-                .FirstOrDefaultAsync(s => s.UserId == waiterId && s.EndTime == null);
+                .Where(s => s.UserId == waiterId && s.EndTime == null)
+                .OrderBy(s => s.StartTime)
+                .FirstOrDefaultAsync();
 
             if (activeShift == null)
             {
@@ -601,7 +607,7 @@ namespace Project.Services.Implementation
 
                 var user = firstShift.User;
 
-                var activeShift = waiterShifts.FirstOrDefault(s => s.EndTime == null);
+                var activeShift = waiterShifts.OrderBy(s => s.StartTime).FirstOrDefault(s => s.EndTime == null);
 
                 if (activeShift == null) continue;
 

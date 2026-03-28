@@ -30,12 +30,9 @@ namespace Project.Services.Implementation
             }
 
             var shift = await _context.Shifts
-                .FirstOrDefaultAsync(s => s.UserId == createShiftDto.UserId && s.EndTime == null);
-
-            if (shift != null)
-            {
-                return ResponseDto<bool>.Failure("User already has an active shift.");
-            }
+                .Where(s => s.UserId == createShiftDto.UserId && s.EndTime == null)
+                .OrderBy(s => s.StartTime)
+                .FirstOrDefaultAsync();
 
             if (!createShiftDto.StartTime.HasValue)
             {
@@ -119,7 +116,9 @@ namespace Project.Services.Implementation
         {
             var shift = await _context.Shifts
                 .Include(s => s.User)
-                .FirstOrDefaultAsync(s => s.UserId == _currentUserService.GetCurrentUserId() && s.EndTime == null);
+                .Where(s => s.UserId == _currentUserService.GetCurrentUserId() && s.EndTime == null)
+                .OrderBy(s => s.StartTime)
+                .FirstOrDefaultAsync();
             if (shift == null)
                 {
                 return ResponseDto<ShiftDto>.Failure("No active shift found for the current user.");
@@ -166,7 +165,9 @@ namespace Project.Services.Implementation
             var userId = _currentUserService.GetCurrentUserId();
 
             var shift = await _context.Shifts
-                .FirstOrDefaultAsync(s => s.UserId == userId && s.EndTime == null);
+                .Where(s => s.UserId == userId && s.EndTime == null)
+                .OrderBy(s => s.StartTime)
+                .FirstOrDefaultAsync();
 
             if (shift == null)
             {
@@ -186,7 +187,9 @@ namespace Project.Services.Implementation
             var userId = _currentUserService.GetCurrentUserId();
 
             var shift = await _context.Shifts
-                .FirstOrDefaultAsync(s => s.UserId == userId && s.EndTime == null);
+                .Where(s => s.UserId == userId && s.EndTime == null)
+                .OrderBy(s => s.StartTime)
+                .FirstOrDefaultAsync();
 
             if (shift == null)
             {
