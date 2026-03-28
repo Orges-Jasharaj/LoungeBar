@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Project.Data.Enums;
 using Project.Data.Models;
 using Project.Dtos.Requests;
 using Project.Services.Interface;
@@ -23,6 +24,28 @@ namespace Project.Controllers
         public async Task<IActionResult> GetMyOrders()
         {
             return Ok(await _orderService.GetMyOrders());
+        }
+
+        [HttpGet("station")]
+        [Authorize(Roles = $"{RoleTypes.Cooker},{RoleTypes.Bartender},{RoleTypes.Admin},{RoleTypes.SuperAdmin}")]
+        public async Task<IActionResult> GetOrdersForStation([FromQuery] string itemType)
+        {
+            if (!Enum.TryParse<ItemType>(itemType, true, out var type))
+            {
+                return BadRequest(new { message = "Invalid itemType. Use Food or Drink." });
+            }
+
+            if (User.IsInRole(RoleTypes.Cooker) && type != ItemType.Food)
+            {
+                return Forbid();
+            }
+
+            if (User.IsInRole(RoleTypes.Bartender) && type != ItemType.Drink)
+            {
+                return Forbid();
+            }
+
+            return Ok(await _orderService.GetOrdersForStation(type));
         }
 
         [HttpGet("GetAllOrders")]
@@ -80,7 +103,7 @@ namespace Project.Controllers
         }
 
         [HttpPut("{orderId}/status")]
-        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.Employee}")]
+        [Authorize(Roles = $"{RoleTypes.SuperAdmin},{RoleTypes.Admin},{RoleTypes.Employee},{RoleTypes.Cooker},{RoleTypes.Bartender}")]
         public async Task<IActionResult> UpdateOrderStatus(
             int orderId,
             [FromQuery] string status)

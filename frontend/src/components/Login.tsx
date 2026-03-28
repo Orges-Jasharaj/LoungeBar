@@ -24,15 +24,45 @@ const Login: React.FC = () => {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         const user = JSON.parse(storedUser);
-        // If user has Employee role, go to waiter dashboard
-        // Check for possible variations of role name
+        
+        const hasSuperAdminRole = user.roles && Array.isArray(user.roles) && (
+          user.roles.includes('SuperAdmin') || 
+          user.roles.includes('SUPERADMIN') || 
+          user.roles.some((role: string) => role && role.toLowerCase() === 'superadmin')
+        );
+
+        const hasCookerRole = user.roles && Array.isArray(user.roles) && (
+          user.roles.includes('Cooker') ||
+          user.roles.some((role: string) => role && role.toLowerCase() === 'cooker')
+        );
+
+        const hasBartenderRole = user.roles && Array.isArray(user.roles) && (
+          user.roles.includes('Bartender') ||
+          user.roles.some((role: string) => role && role.toLowerCase() === 'bartender')
+        );
+
         const hasEmployeeRole = user.roles && Array.isArray(user.roles) && (
           user.roles.includes('Employee') || 
           user.roles.includes('EMPLOYEE') || 
           user.roles.some((role: string) => role && role.toLowerCase() === 'employee')
         );
-        if (hasEmployeeRole) {
+
+        const hasManagerRole = user.roles && Array.isArray(user.roles) && (
+          user.roles.includes('Admin') || 
+          user.roles.includes('ADMIN') || 
+          user.roles.some((role: string) => role && role.toLowerCase() === 'admin')
+        );
+
+        if (hasSuperAdminRole) {
+          navigate('/superadmin', { replace: true });
+        } else if (hasCookerRole) {
+          navigate('/kitchen', { replace: true });
+        } else if (hasBartenderRole) {
+          navigate('/bar', { replace: true });
+        } else if (hasEmployeeRole) {
           navigate('/waiter', { replace: true });
+        } else if (hasManagerRole) {
+          navigate('/admin', { replace: true });
         } else {
           navigate('/dashboard', { replace: true });
         }

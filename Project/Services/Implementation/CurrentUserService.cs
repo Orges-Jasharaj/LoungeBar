@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 
 namespace Project.Services.Implementation
 {
@@ -18,6 +18,9 @@ namespace Project.Services.Implementation
             return _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
         }
 
-
+        public bool IsInRole(string role)
+        {
+            return _httpContextAccessor.HttpContext?.User?.IsInRole(role) ?? false;
+        }
     }
 }

@@ -1,3 +1,4 @@
+using Project.Data.Enums;
 using Project.Dtos.Requests;
 using Project.Dtos.Responses;
 
@@ -20,6 +21,6 @@ namespace Project.Services.Interface
         Task<ResponseDto<decimal>> GetTotalOrdersByWaiterId(string waiterId);
         Task<ResponseDto<List<OrderResponseDto>>> GetOrdersByWaiterId(string waiterId, int? shiftId = null);
         Task<ResponseDto<List<WaiterDailySalesDto>>> GetAllWaitersDailySales();
-
+        Task<ResponseDto<List<OrderResponseDto>>> GetOrdersForStation(ItemType itemType);
     }
 }

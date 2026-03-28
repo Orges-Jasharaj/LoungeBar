@@ -137,6 +137,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
               <option value="SuperAdmin">SuperAdmin</option>
               <option value="Admin">Admin</option>
               <option value="Employee">Employee</option>
+              <option value="Cooker">Cooker</option>
+              <option value="Bartender">Bartender</option>
               <option value="User">User</option>
             </select>
           </div>

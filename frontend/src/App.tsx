@@ -7,6 +7,7 @@ import Dashboard from './components/Dashboard';
 import WaiterDashboard from './components/WaiterDashboard';
 import SuperAdminDashboard from './components/SuperAdminDashboard';
 import AdminDashboard from './components/AdminDashboard';
+import StationOrdersDashboard from './components/StationOrdersDashboard';
 import TableRouteHandler from './components/TableRouteHandler';
 import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './components/Profile';
@@ -30,6 +31,16 @@ const HomeRedirect: React.FC = () => {
     user.roles.some((role: string) => role && role.toLowerCase() === 'superadmin')
   );
 
+  const hasCookerRole = user.roles && Array.isArray(user.roles) && (
+    user.roles.includes('Cooker') ||
+    user.roles.some((role: string) => role && role.toLowerCase() === 'cooker')
+  );
+
+  const hasBartenderRole = user.roles && Array.isArray(user.roles) && (
+    user.roles.includes('Bartender') ||
+    user.roles.some((role: string) => role && role.toLowerCase() === 'bartender')
+  );
+
   const hasEmployeeRole = user.roles && Array.isArray(user.roles) && (
     user.roles.includes('Employee') || 
     user.roles.includes('EMPLOYEE') || 
@@ -44,6 +55,14 @@ const HomeRedirect: React.FC = () => {
 
   if (hasSuperAdminRole) {
     return <Navigate to="/superadmin" replace />;
+  }
+
+  if (hasCookerRole) {
+    return <Navigate to="/kitchen" replace />;
+  }
+
+  if (hasBartenderRole) {
+    return <Navigate to="/bar" replace />;
   }
 
   if (hasEmployeeRole) {
@@ -93,6 +112,30 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/kitchen"
+            element={
+              <ProtectedRoute>
+                <StationOrdersDashboard
+                  title="Kitchen"
+                  subtitle="Food orders (active queue)"
+                  itemType="Food"
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bar"
+            element={
+              <ProtectedRoute>
+                <StationOrdersDashboard
+                  title="Bar"
+                  subtitle="Drink orders (active queue)"
+                  itemType="Drink"
+                />
               </ProtectedRoute>
             }
           />

@@ -116,6 +116,10 @@ const UserManagement: React.FC = () => {
         return '#388e3c';
       case 'User':
         return '#f57c00';
+      case 'Cooker':
+        return '#6a1b9a';
+      case 'Bartender':
+        return '#00897b';
       default:
         return '#666';
     }
@@ -185,6 +189,8 @@ const UserManagement: React.FC = () => {
             <option value="SuperAdmin">SuperAdmin</option>
             <option value="Admin">Admin</option>
             <option value="Employee">Employee</option>
+            <option value="Cooker">Cooker</option>
+            <option value="Bartender">Bartender</option>
             <option value="User">User</option>
           </select>
         </div>
@@ -255,6 +261,8 @@ const UserManagement: React.FC = () => {
                         <option value="SuperAdmin">SuperAdmin</option>
                         <option value="Admin">Admin</option>
                         <option value="Employee">Employee</option>
+                        <option value="Cooker">Cooker</option>
+                        <option value="Bartender">Bartender</option>
                         <option value="User">User</option>
                       </select>
                       {user.isActive ? (

@@ -166,7 +166,13 @@ namespace Project.Services.Implementation
                 return ResponseDto<bool>.Failure("Order not found.");
             }
 
-            if (order.UserId != userId)
+            var canUpdateAnyOrder =
+                _currentUserService.IsInRole(RoleTypes.Admin) ||
+                _currentUserService.IsInRole(RoleTypes.SuperAdmin) ||
+                _currentUserService.IsInRole(RoleTypes.Cooker) ||
+                _currentUserService.IsInRole(RoleTypes.Bartender);
+
+            if (!canUpdateAnyOrder && order.UserId != userId)
             {
                 return ResponseDto<bool>.Failure("You can only update your own orders.");
             }
@@ -644,6 +650,24 @@ namespace Project.Services.Implementation
                 .SuccessResponse(waiterSales, "Daily sales for all waiters retrieved successfully.");
         }
 
+        public async Task<ResponseDto<List<OrderResponseDto>>> GetOrdersForStation(ItemType itemType)
+        {
+            var orders = await _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.Table)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.MenuItem)
+                .Where(o => o.Status != OrderStatus.Paid && o.Status != OrderStatus.Canceled)
+                .Where(o => o.OrderItems.Any(oi => oi.MenuItem.ItemType == itemType))
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+
+            var result = orders.Select(o => MapToOrderResponseForStation(o, itemType)).ToList();
+
+            return ResponseDto<List<OrderResponseDto>>
+                .SuccessResponse(result, "Station orders retrieved successfully.");
+        }
+
         private static OrderResponseDto MapToOrderResponse(Order order)
         {
             return new OrderResponseDto
@@ -658,6 +682,34 @@ namespace Project.Services.Implementation
                 UserId = order.UserId,
                 UserName = order.User?.UserName,
                 Items = order.OrderItems.Select(oi => new OrderItemResponseDto
+                {
+                    MenuItemId = oi.MenuItemId,
+                    MenuItemName = oi.MenuItem.Name,
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice
+                }).ToList()
+            };
+        }
+
+        private static OrderResponseDto MapToOrderResponseForStation(Order order, ItemType stationType)
+        {
+            var lineItems = order.OrderItems
+                .Where(oi => oi.MenuItem.ItemType == stationType)
+                .ToList();
+            var subtotal = lineItems.Sum(oi => oi.UnitPrice * oi.Quantity);
+
+            return new OrderResponseDto
+            {
+                OrderId = order.Id,
+                OrderDate = order.CreatedAt,
+                UpdatedAt = order.UpdatedAt,
+                Status = order.Status.ToString(),
+                TotalAmount = subtotal,
+                TableId = order.TableId,
+                TableNumber = order.Table?.Number ?? 0,
+                UserId = order.UserId,
+                UserName = order.User?.UserName,
+                Items = lineItems.Select(oi => new OrderItemResponseDto
                 {
                     MenuItemId = oi.MenuItemId,
                     MenuItemName = oi.MenuItem.Name,

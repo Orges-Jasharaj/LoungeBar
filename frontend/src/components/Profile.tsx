@@ -21,6 +21,8 @@ const Profile: React.FC = () => {
     const roles = user.roles.map((r: string) => r?.toLowerCase());
     if (roles.includes('superadmin')) navigate('/superadmin');
     else if (roles.includes('admin')) navigate('/admin');
+    else if (roles.includes('cooker')) navigate('/kitchen');
+    else if (roles.includes('bartender')) navigate('/bar');
     else if (roles.includes('employee')) navigate('/waiter');
     else navigate('/dashboard');
   };

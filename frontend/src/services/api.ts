@@ -210,6 +210,15 @@ export const orderApi = {
     const response = await api.get<ResponseDto<WaiterDailySalesDto[]>>('/order/waiters/daily-sales');
     return response.data;
   },
+
+  getOrdersForStation: async (
+    itemType: 'Food' | 'Drink'
+  ): Promise<ResponseDto<OrderResponseDto[]>> => {
+    const response = await api.get<ResponseDto<OrderResponseDto[]>>(
+      `/order/station?itemType=${encodeURIComponent(itemType)}`
+    );
+    return response.data;
+  },
 };
 
 export const menuItemApi = {

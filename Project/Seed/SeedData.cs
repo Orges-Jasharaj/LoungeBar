@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Project.Data.Models;
 
 namespace Project.Seed
@@ -13,7 +13,7 @@ namespace Project.Seed
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            string[] roles = new[] { RoleTypes.SuperAdmin, RoleTypes.Admin, RoleTypes.User , RoleTypes.Employee };
+            string[] roles = new[] { RoleTypes.SuperAdmin, RoleTypes.Admin, RoleTypes.User, RoleTypes.Employee, RoleTypes.Cooker, RoleTypes.Bartender };
 
             foreach (var role in roles)
             {

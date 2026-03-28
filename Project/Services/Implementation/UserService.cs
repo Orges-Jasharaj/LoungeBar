@@ -168,7 +168,7 @@ namespace Project.Services.Implementation
         {
             try
             {
-                var allowedRoles = new[] { RoleTypes.SuperAdmin, RoleTypes.Admin, RoleTypes.Employee, RoleTypes.User };
+                var allowedRoles = new[] { RoleTypes.SuperAdmin, RoleTypes.Admin, RoleTypes.Employee, RoleTypes.User, RoleTypes.Cooker, RoleTypes.Bartender };
 
                 if (!allowedRoles.Contains(newRole))
                 {
@@ -423,7 +423,7 @@ namespace Project.Services.Implementation
         {
             try
             {
-                var allowedRoles = new[] { RoleTypes.SuperAdmin, RoleTypes.Admin , RoleTypes.Employee };
+                var allowedRoles = new[] { RoleTypes.SuperAdmin, RoleTypes.Admin, RoleTypes.Employee, RoleTypes.Cooker, RoleTypes.Bartender };
 
                 if (!allowedRoles.Contains(role))
                 {
