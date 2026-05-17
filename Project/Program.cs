@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using OpenQA.Selenium.Chrome;
 using Project.Data;
 using Project.Data.Models;
 using Project.Dtos.System;
@@ -12,12 +13,12 @@ using Project.Middleware;
 using Project.Seed;
 using Project.Services.Implementation;
 using Project.Services.Interface;
+using QuestPDF.Infrastructure;
 using Serilog;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Linq;
 using System.Text.Json.Serialization;
-using QuestPDF.Infrastructure;
 
 namespace Project
 {
@@ -36,6 +37,11 @@ namespace Project
             });
 
             builder.Services.AddHangfireServer();
+
+            //selenium
+            using var driver = new ChromeDriver();
+            driver.Url = "https://www.selenium.dev";
+            Console.WriteLine(driver.Title);
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
